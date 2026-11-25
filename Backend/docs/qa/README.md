@@ -1,6 +1,6 @@
 # Tài liệu kiểm thử BlueMoon – Sprint 1
 
-Bộ tài liệu kiểm thử cho bản ver1 (Sprint 1) của hệ thống quản lý chung cư BlueMoon: 12 User Story US01, US02, US03, US05, US06, US07, US08, US12, US15, US21, US22, US23. Mọi kết quả trong thư mục này lấy từ hai lần chạy kiểm thử ngày 26/11/2026 trên nhánh `main`: lần 1 tại commit `4ffb52e`, lần 2 (hồi quy, sau bản sửa lỗi `c2dd81c`) tại commit `5ec2491`.
+Bộ tài liệu kiểm thử cho bản ver1 (Sprint 1) của hệ thống quản lý chung cư BlueMoon: 12 User Story US01, US02, US03, US05, US06, US07, US08, US12, US15, US21, US22, US23. Mọi kết quả trong thư mục này lấy từ ba lần chạy kiểm thử ngày 26/11/2026 trên nhánh `main`: lần 1 tại commit `4ffb52e`, lần 2 (hồi quy, sau bản sửa lỗi `c2dd81c`) tại commit `5ec2491`, lần 3 sau khi sửa LOI-14.
 
 ## Phân công
 
@@ -40,4 +40,4 @@ Script kiểm thử API tự động: [tu-dong/kiem_thu_api.py](tu-dong/kiem_thu
 | Giao diện (trình duyệt) | 24 | 20 | 22 |
 | **Tổng** | **62** | **53** | **60** |
 
-Ngoài ra 9/9 test đơn vị của backend (`./mvnw test`) đều đạt ở cả hai lần. Lỗi còn mở sau lần 2: LOI-14 (Cao), LOI-08 (Trung bình), LOI-09 một phần, LOI-10, LOI-11, LOI-13 (Thấp). Chi tiết, đánh giá và đề xuất nằm trong [báo cáo kiểm thử](bao-cao-kiem-thu.md).
+Lần 3 chỉ chạy lại phần API (38/38 đạt) vì bản sửa LOI-14 chỉ thay đổi backend; tổng sau lần 3 vẫn là 60/62. 9/9 test đơn vị của backend (`./mvnw test`) đạt ở cả ba lần. Không còn lỗi mức Cao; lỗi còn mở: LOI-08 (Trung bình), LOI-09 một phần, LOI-10, LOI-11, LOI-13 (Thấp). Chi tiết, đánh giá và đề xuất nằm trong [báo cáo kiểm thử](bao-cao-kiem-thu.md).

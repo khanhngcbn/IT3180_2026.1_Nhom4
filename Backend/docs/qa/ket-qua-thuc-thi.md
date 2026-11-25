@@ -28,6 +28,17 @@ Test đơn vị backend (`./mvnw test`): 9/9 đạt ở cả hai lần (BC-03).
 - Ở lần 2, ngoài 62 case, đã thử thêm theo mục B1 của [checklist hồi quy](checklist-hoi-quy.md): tài khoản `ketoan` vẫn **sửa** được tài khoản `admin` và hạ xuống `USER`. Đây là lỗi mới LOI-14 (BC-03, mục 4.3).
 - GD-18 ở cả hai lần đều làm giá gửi xe theo giờ trong database thành 0 (lỗi LOI-08).
 
+## Lần 3 – sau khi sửa LOI-14
+
+| Mục | Nội dung |
+|---|---|
+| Mã nguồn | commit `1150a10` cộng bản sửa LOI-14 (`AdminListUserController.editUser`) và TH-08 mở rộng |
+| Chạy API | 2026-11-26 05:47:42 → 05:48:01, backend khởi động mới |
+| Kết quả API | 38/38 đạt (CN 30/30, TH 8/8); TH-08: khóa/mở/sửa/xóa đơn lẻ `admin` bằng `ketoan` = 403, 403, 403, 403; `admin` vẫn `ROLE_ADMIN` |
+| Test đơn vị | 9/9 đạt |
+| Giao diện | Không chạy lại vì bản sửa chỉ thay đổi backend; giữ kết quả lần 2: 22/24 (GD-18, GD-23 không đạt) |
+| Tổng sau lần 3 | 60/62 đạt (96,8%) |
+
 ## Chức năng (CN-01…CN-30)
 
 Nguồn: [BC-01](bang-chung/BC-01-kiem-thu-api.txt). Cột "Thực tế ghi nhận" chép nguyên từ đầu ra của script.

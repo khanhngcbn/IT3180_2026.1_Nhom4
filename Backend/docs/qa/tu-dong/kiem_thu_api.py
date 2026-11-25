@@ -526,18 +526,27 @@ def th07():
     return status == 200 and apts == occupied, f"{status}; căn hộ nhận khoản {apts}; căn hộ đang có cư dân {occupied}"
 
 
-@case("TH-08", "Kế toán (ADMIN thường) không khóa được tài khoản super admin")
+@case("TH-08", "Kế toán (ADMIN thường) không khóa, mở, sửa hay xóa được tài khoản super admin")
 def th08():
     ketoan = login(KETOAN)
     admin_id = users_by_name(admin())["admin"]["id"]
+    demote = {"fullName": "Admin User", "age": 30, "phone": "0123456789", "role": "USER",
+              "apartmentNumbers": [], "status": "THUONGTRU"}
     s_batch, b_batch = http("POST", "/api/admin/users/batch/deactivate", {"ids": [admin_id]}, ketoan)
-    s_single, b_single = http("POST", f"/api/admin/users/deactivate/{admin_id}", token=ketoan)
-    admin_can_login = login(ADMIN) is not None
-    if not admin_can_login:
+    s_single, _ = http("POST", f"/api/admin/users/deactivate/{admin_id}", token=ketoan)
+    s_activate, _ = http("POST", f"/api/admin/users/activate/{admin_id}", token=ketoan)
+    s_edit, _ = http("POST", f"/api/admin/users/edit/{admin_id}", demote, ketoan)
+    s_delete, _ = http("POST", f"/api/admin/users/delete/{admin_id}", token=ketoan)
+    token = login(ADMIN)
+    role = jwt_role(token) if token else None
+    if role != "ROLE_ADMIN":
         # khôi phục để không ảnh hưởng các lần chạy sau trên cùng database
         http("POST", f"/api/admin/users/activate/{admin_id}", token=ketoan)
-    return admin_can_login, (f"khóa hàng loạt {s_batch} {short(b_batch, 60)}; khóa đơn lẻ {s_single} {short(b_single, 20)}; "
-                             f"admin còn đăng nhập được: {admin_can_login}")
+        http("POST", f"/api/admin/users/edit/{admin_id}", {**demote, "role": "ADMIN"}, ketoan)
+    batch_blocked = isinstance(b_batch, dict) and b_batch.get("deactivatedCount") == 0
+    ok = batch_blocked and [s_single, s_activate, s_edit, s_delete] == [403, 403, 403, 403] and role == "ROLE_ADMIN"
+    return ok, (f"khóa hàng loạt {s_batch} {short(b_batch, 60)}; khóa/mở/sửa/xóa đơn lẻ = "
+                f"{[s_single, s_activate, s_edit, s_delete]}; vai trò của admin sau đó: {role}")
 
 
 # ---------------------------------------------------------------- runner

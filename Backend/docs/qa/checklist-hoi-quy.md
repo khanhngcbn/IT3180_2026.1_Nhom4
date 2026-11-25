@@ -4,6 +4,7 @@ Dùng sau mỗi lần sửa lỗi hoặc trước mỗi lần bàn giao. Ngườ
 
 - **Lần 1:** commit `4ffb52e`, đợt kiểm thử đầu tiên.
 - **Lần 2:** commit `5ec2491`, sau bản sửa lỗi `c2dd81c`.
+- **Lần 3:** sau bản sửa LOI-14; chạy lại mục A2, A5 và các mục B liên quan (B1, B11). Giao diện không đổi nên không chạy lại.
 
 ## A. Chuẩn bị (bắt buộc)
 
@@ -20,7 +21,7 @@ Dùng sau mỗi lần sửa lỗi hoặc trước mỗi lần bàn giao. Ngườ
 
 | # | Lỗi | Cách xác nhận | Lần 1 | Lần 2 |
 |---|---|---|:---:|:---:|
-| B1 | LOI-01 | TH-08 đạt; thử thêm `activate`, `delete`, `edit` đơn lẻ bằng `ketoan` lên tài khoản `admin` đều bị từ chối | ❌ | ⚠️ TH-08, `activate`, `delete` bị chặn; `edit` vẫn được (LOI-14) |
+| B1 | LOI-01 | TH-08 đạt; thử thêm `activate`, `delete`, `edit` đơn lẻ bằng `ketoan` lên tài khoản `admin` đều bị từ chối | ❌ | ⚠️ TH-08, `activate`, `delete` bị chặn; `edit` vẫn được (LOI-14). Lần 3: ✅ cả bốn đều 403 |
 | B2 | LOI-02 | TH-01 đạt; căn hộ đăng ký kèm chuyển `RENT` và sinh 3 khoản phí | ❌ | ✅ |
 | B3 | LOI-03 | TH-06 đạt; hồ sơ cư dân vẫn giữ căn hộ sau khi khóa rồi mở lại | ❌ | ✅ |
 | B4 | LOI-04 | TH-07 đạt | ❌ | ✅ |
@@ -30,7 +31,7 @@ Dùng sau mỗi lần sửa lỗi hoặc trước mỗi lần bàn giao. Ngườ
 | B8 | LOI-09 | GD-01 đạt: ô Username là ô chữ, gợi ý tên đăng nhập; màn Sign Up cũng vậy | ❌ | ⚠️ Sign In đạt, Sign Up chưa |
 | B9 | LOI-10 | GD-23 đạt: cư dân gõ `/admin/...` bị chuyển về trang cư dân | ❌ | ❌ |
 | B10 | LOI-11, LOI-12, LOI-13 | Mô tả khoản phí đúng dạng "phí thuê căn hộ A0012"; log khởi động ghi đúng 50 căn hộ; nút Google bị ẩn hoặc có chức năng | ❌ | ⚠️ Chỉ LOI-12 đạt |
-| B11 | LOI-14 | `ketoan` gọi `edit` lên tài khoản `admin` bị từ chối, vai trò `admin` không đổi | – | ❌ (phát hiện ở lần 2) |
+| B11 | LOI-14 | `ketoan` gọi `edit` lên tài khoản `admin` bị từ chối, vai trò `admin` không đổi | – | ❌ (phát hiện ở lần 2). Lần 3: ✅ |
 
 ## C. Hồi quy các phần đang chạy đúng (bắt buộc)
 
@@ -58,3 +59,4 @@ Dùng sau mỗi lần sửa lỗi hoặc trước mỗi lần bàn giao. Ngườ
 |---|---|---|:---:|:---:|---|---|
 | 1 | 26/11/2026 | Nguyễn Hoàng Giang | 0/10 (chưa sửa) | 15/15 | Chưa nghiệm thu, chờ sửa LOI-01…LOI-04 | (Nguyễn Đình Nam Khánh điền) |
 | 2 | 26/11/2026 | Nguyễn Hoàng Giang | 5/11 đạt hoàn toàn, 3/11 đạt một phần | 15/15 | Chưa nghiệm thu, chờ sửa LOI-14 (Cao); LOI-08 nên sửa cùng đợt | (Nguyễn Đình Nam Khánh điền) |
+| 3 | 26/11/2026 | Nguyễn Hoàng Giang | 7/11 đạt hoàn toàn (thêm B1, B11), 2/11 đạt một phần | API 38/38; giao diện giữ kết quả lần 2 | Đủ tiêu chí nghiệm thu ver1 theo kế hoạch; chuyển LOI-08, LOI-09, LOI-10, LOI-11, LOI-13 sang Sprint 2 | (Nguyễn Đình Nam Khánh điền) |

@@ -36,3 +36,11 @@ POST /api/admin/users/deactivate/2 (ketoan tự khóa mình) -> 403
 POST /api/admin/users/edit/1       bằng token ketoan, role=USER -> 200   <- LỖI MỚI LOI-14
 GET  /api/admin/users sau đó: admin role=USER (super admin bị hạ quyền)
 Khôi phục: ketoan gọi lại edit/1 với role=ADMIN -> 200; JWT của admin trở lại ROLE_ADMIN
+
+## 5. LẦN 3 (sau khi sửa LOI-14)
+### 5.1 ./mvnw -B test
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0 (BUILD SUCCESS)
+### 5.2 Kiểm tra thêm (ketoan = ADMIN thường, id 1 = admin, id 2 = ketoan)
+TH-08 mở rộng: khóa/mở/sửa/xóa đơn lẻ tài khoản admin bằng token ketoan -> [403, 403, 403, 403]; admin vẫn ROLE_ADMIN
+POST /api/admin/users/edit/<id cudan01> bằng token ketoan (tài khoản USER)  -> 200   (vẫn sửa được cư dân thường)
+POST /api/admin/users/edit/2 bằng token ketoan (tự sửa chính mình)          -> 403   (cùng quy tắc với khóa/mở/xóa)

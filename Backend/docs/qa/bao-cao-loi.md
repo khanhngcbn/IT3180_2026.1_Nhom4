@@ -2,7 +2,7 @@
 
 Người ghi nhận: Nguyễn Hoàng Giang (kiểm thử). Người duyệt: Nguyễn Đình Nam Khánh.
 
-LOI-01…LOI-13 được phát hiện ở lần 1 (commit `4ffb52e`). Sau bản sửa lỗi `c2dd81c`, mọi lỗi được kiểm tra lại ở lần 2 (commit `5ec2491`); LOI-14 được phát hiện trong lần kiểm tra lại này. Nguyên nhân trong code được chỉ ra để người sửa đỡ phải dò lại.
+LOI-01…LOI-13 được phát hiện ở lần 1 (commit `4ffb52e`). Sau bản sửa lỗi `c2dd81c`, mọi lỗi được kiểm tra lại ở lần 2 (commit `5ec2491`); LOI-14 được phát hiện trong lần kiểm tra lại này, đã sửa và kiểm tra lại ở lần 3. Nguyên nhân trong code được chỉ ra để người sửa đỡ phải dò lại.
 
 Trạng thái: **Đã sửa** (đã kiểm tra lại, case liên quan đạt), **Sửa một phần**, **Mở** (chưa sửa).
 
@@ -10,7 +10,7 @@ Mức độ: **Cao** (sai quyền hoặc mất tính đúng của dữ liệu ng
 
 ## Tổng hợp
 
-| Mã | Mức độ | Tóm tắt | Case phát hiện | US | Giao cho | Trạng thái sau lần 2 |
+| Mã | Mức độ | Tóm tắt | Case phát hiện | US | Giao cho | Trạng thái mới nhất |
 |---|---|---|---|---|---|---|
 | LOI-01 | Cao | ADMIN thường khóa được tài khoản super admin bằng API khóa đơn lẻ | TH-08 | US23 | Đặng Thiệu Minh | Đã sửa |
 | LOI-02 | Cao | Cư dân tự đăng ký kèm căn hộ không được gắn vào căn hộ | TH-01 | US21 | Đặng Thiệu Minh | Đã sửa |
@@ -25,9 +25,9 @@ Mức độ: **Cao** (sai quyền hoặc mất tính đúng của dữ liệu ng
 | LOI-11 | Thấp | Mô tả khoản phí tự sinh bị lặp số căn hộ và thiếu dấu cách | TH-02, GD-22 | US06 | Đặng Thiệu Minh | Mở |
 | LOI-12 | Thấp | Log khởi động báo tạo 150 căn hộ, thực tế tạo 50 | Bằng chứng BC-03 | US02 | Đặng Thiệu Minh | Đã sửa |
 | LOI-13 | Thấp | Nút "Sign in with Google" không làm gì khi bấm | GD-06 (quan sát thêm) | US22 | Nguyễn Đình Nam Khánh | Mở |
-| LOI-14 | Cao | ADMIN thường sửa được tài khoản super admin, hạ `admin` xuống `USER` | Checklist B1 (lần 2) | US23 | Đặng Thiệu Minh | Mở |
+| LOI-14 | Cao | ADMIN thường sửa được tài khoản super admin, hạ `admin` xuống `USER` | Checklist B1 (lần 2) | US23 | Đặng Thiệu Minh | Đã sửa (lần 3) |
 
-Thống kê: 14 lỗi (3 Cao, 5 Trung bình, 6 Thấp). Sau lần 2: 8 đã sửa, 1 sửa một phần, 5 còn mở (trong đó 1 lỗi Cao: LOI-14).
+Thống kê: 14 lỗi (3 Cao, 5 Trung bình, 6 Thấp). Sau lần 3: 9 đã sửa, 1 sửa một phần, 4 còn mở (LOI-08 Trung bình; LOI-10, LOI-11, LOI-13 Thấp). Không còn lỗi mức Cao.
 
 ## Chi tiết
 
@@ -155,3 +155,5 @@ Thống kê: 14 lỗi (3 Cao, 5 Trung bình, 6 Thấp). Sau lần 2: 8 đã sử
 - **Thực tế:** 200 `updated`; `admin` bị hạ xuống `USER`, đăng nhập lại chỉ nhận `ROLE_USER` nên mất toàn bộ quyền quản trị. Đã khôi phục bằng cách cho `ketoan` sửa lại `role: "ADMIN"`.
 - **Nguyên nhân:** `AdminListUserController.editUser` chưa có kiểm tra người gọi như `deactivateUser`, `activateUser`, `deleteUser` sau bản sửa `c2dd81c`.
 - **Bằng chứng:** BC-03, mục 4.3.
+- **Sửa:** `editUser` kiểm tra `isProtected(user)` trước khi sửa, giống `deactivateUser`, `activateUser`, `deleteUser`: không sửa chính mình, không sửa tài khoản `admin`, chỉ super admin sửa được ADMIN khác.
+- **Kiểm tra lại (lần 3):** Đã sửa. TH-08 mở rộng đạt: khóa/mở/sửa/xóa đơn lẻ `admin` bằng `ketoan` đều 403, `admin` vẫn `ROLE_ADMIN`. `ketoan` vẫn sửa được cư dân thường (200); CN-10 (super admin đổi vai trò) vẫn đạt (BC-01 lần 3, BC-03 mục 5).

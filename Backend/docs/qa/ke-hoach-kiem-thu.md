@@ -75,7 +75,8 @@ Máy kiểm thử chưa cài Docker nên không chạy được PostgreSQL bằn
 | Chạy kiểm thử giao diện | Nguyễn Hoàng Giang | 26/11/2026 |
 | Sửa lỗi (bản `c2dd81c`) | Nguyễn Đình Nam Khánh, Đặng Thiệu Minh | 26/11/2026 |
 | Kiểm thử hồi quy theo checklist (lần 2) | Nguyễn Hoàng Giang | 26/11/2026, API 05:37–05:38, sau đó giao diện |
-| Sửa các lỗi còn mở (LOI-14 trước tiên) và hồi quy lần 3 | Phát triển, sau đó kiểm thử | Sau khi duyệt báo cáo lần 2 |
+| Sửa LOI-14 và hồi quy lần 3 (API, test đơn vị) | Phát triển (phụ trách US23: Đặng Thiệu Minh), sau đó kiểm thử (Nguyễn Hoàng Giang) | 26/11/2026, API 05:47–05:48 |
+| Sửa các lỗi còn mở (LOI-08, LOI-09, LOI-10, LOI-11, LOI-13) | Nguyễn Đình Nam Khánh, Đặng Thiệu Minh | Sprint 2 |
 | Duyệt kết quả, quyết định nghiệm thu | Nguyễn Đình Nam Khánh | Sau hồi quy |
 
 ## 7. Rủi ro
