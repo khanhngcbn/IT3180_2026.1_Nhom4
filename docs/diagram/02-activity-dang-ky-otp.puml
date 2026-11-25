@@ -1,0 +1,70 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor #F5F9FF
+  BorderColor #3A6EA5
+}
+title Activity Diagram - Đăng ký tài khoản và xác minh email bằng OTP (US21)
+
+|Cư dân|
+start
+:Mở màn hình **Sign Up**;
+repeat
+  :Nhập tên đăng nhập, mật khẩu, họ tên, tuổi,
+  số điện thoại, email, (tùy chọn) số căn hộ;
+  |Hệ thống (Backend)|
+  :POST /api/auth/register
+  Kiểm tra dữ liệu (UserDTO);
+repeat while (Dữ liệu hợp lệ?\n- tên đăng nhập, email chưa dùng\n- mật khẩu 8-16 ký tự, đủ hoa/thường/số/đặc biệt\n- SĐT 10 số, căn hộ (nếu nhập) đã tồn tại) is (không: trả lỗi từng trường) not (có)
+:Lưu thông tin tạm vào session
+(phiên hết hạn sau 5 phút);
+
+repeat
+  |Hệ thống (Backend)|
+  :POST /api/auth/resend-otp;
+  if (Đã gửi >= 3 OTP trong 15 phút?) then (có)
+    :Trả 429 "Bạn đã yêu cầu quá nhiều lần";
+    |Cư dân|
+    :Thấy thông báo, thử lại sau;
+    stop
+  else (không)
+  endif
+  |Hệ thống (Backend)|
+  :Sinh OTP 6 số (SecureRandom),
+  lưu bản băm BCrypt, hiệu lực 5 phút;
+  |Gmail SMTP|
+  :Gửi email chứa OTP;
+
+  repeat
+    |Cư dân|
+    :Nhập OTP nhận được;
+    |Hệ thống (Backend)|
+    :POST /api/auth/verify-otp;
+    if (Session đăng ký còn hiệu lực?) then (không)
+      :Trả "Phiên đăng ký đã hết hạn!";
+      |Cư dân|
+      :Phải đăng ký lại từ đầu;
+      stop
+    else (còn)
+    endif
+    |Hệ thống (Backend)|
+    if (OTP đúng và còn hạn?) then (đúng)
+      :Hủy OTP (chỉ dùng 1 lần);
+      :Tạo Resident và User (vai trò USER, đã kích hoạt),
+      mật khẩu băm BCrypt;
+      :Xóa thông tin tạm khỏi session;
+      |Cư dân|
+      :Thấy "Xác thực thành công!",
+      chuyển sang màn hình đăng nhập;
+      stop
+    else (sai)
+      |Hệ thống (Backend)|
+      :Tăng số lần nhập sai;
+      note right: Sai đủ 3 lần thì OTP bị hủy
+    endif
+  repeat while (OTP còn hiệu lực?) is (còn: nhập lại) not (đã bị hủy)
+  |Cư dân|
+  :Bấm **Gửi lại OTP**;
+repeat while (Yêu cầu OTP mới)
+@enduml

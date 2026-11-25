@@ -1,0 +1,70 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam participant {
+  BackgroundColor #F5F9FF
+  BorderColor #3A6EA5
+}
+autonumber
+title Sequence Diagram - Quên mật khẩu, đặt lại bằng OTP (US22)
+
+actor "Người dùng" as U
+participant "Frontend\n(React SPA)" as FE
+participant "ForgotPasswordController" as C
+participant "OTPService" as S
+collections "Bộ nhớ OTP\n(Caffeine)" as CACHE
+database "PostgreSQL" as DB
+participant "MailService" as M
+participant "Gmail SMTP" as G
+
+== Yêu cầu OTP ==
+U -> FE : Chọn **Forgot password?**, nhập tên đăng nhập
+FE -> C : POST /api/auth/forgot-password {username}
+C -> S : sendResetPasswordOTP(username)
+S -> DB : tìm User và Resident theo tên đăng nhập
+DB --> S : email đã đăng ký
+alt Không tìm thấy tài khoản
+  S --> C : false
+  C --> FE : 200 {success: false}
+else Đã gửi >= 3 OTP trong 15 phút
+  S --> C : RuntimeException
+  C --> FE : 400 "Bạn đã yêu cầu quá nhiều lần..."
+else Hợp lệ
+  S -> S : Sinh OTP 6 số (SecureRandom)
+  S -> CACHE : lưu băm BCrypt của OTP\nkey RESET:<email>, hết hạn 5 phút
+  S -> M : sendOTP(email, otp)
+  M -> G : gửi email
+  G --> U : Email chứa OTP
+  S --> C : true
+  C --> FE : 200 {success: true}
+end
+
+== Đặt lại mật khẩu ==
+U -> FE : Nhập tên đăng nhập, email, OTP, mật khẩu mới
+FE -> C : POST /api/auth/reset-password\n{username, email, otp, newPassword}
+C -> S : verifyOTPAndChangePassword(...)
+S -> DB : lấy email đã đăng ký của tài khoản
+alt Email gửi lên khác email đã đăng ký
+  S --> C : false
+  C --> FE : 400 "Invalid OTP!"
+else Email khớp
+  S -> CACHE : lấy OTP theo key RESET:<email>
+  alt OTP sai hoặc hết hạn
+    S -> CACHE : tăng số lần sai\n(đủ 3 lần thì hủy OTP)
+    S --> C : false
+    C --> FE : 400 "Invalid OTP!"
+  else OTP đúng
+    S -> CACHE : hủy OTP (chỉ dùng 1 lần)
+    S -> DB : lưu mật khẩu mới (BCrypt)
+    S --> C : true
+    C --> FE : 200 "Password changed successfully"
+    FE --> U : Chuyển về màn hình đăng nhập
+  end
+end
+
+note over S, CACHE
+  OTP đăng ký (REGISTER:) và OTP đặt lại mật khẩu (RESET:)
+  lưu tách riêng, không dùng thay cho nhau được.
+end note
+@enduml

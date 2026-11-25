@@ -1,0 +1,168 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F5F9FF
+  BorderColor #3A6EA5
+}
+hide empty methods
+title Class Diagram - Mô hình dữ liệu (package com.example.demo.entity)
+
+class User <<Entity>> {
+  - id : Long
+  - name : String  <<tên đăng nhập>>
+  - password : String  <<BCrypt>>
+  - role : String  <<"ADMIN" | "USER">>
+  - activation : boolean
+  - residentId : Long
+  - dateCreated : String
+}
+
+class Resident <<Entity>> {
+  - id : Long
+  - fullName : String
+  - email : String  <<unique>>
+  - phone : String
+  - age : Long
+  - gender : String
+  - apartmentNumbers : Set<String>
+  - role : Role
+  - status : ResidentStatus
+}
+
+class Apartment <<Entity>> {
+  - id : Long
+  - apartmentNumber : String  <<unique>>
+  - roomNumber : String
+  - floor : Integer
+  - area : Double
+  - status : ApartmentStatus
+  - type : ApartmentType
+  - residentIds : Set<Long>
+  - billIds : Set<Long>
+}
+
+class ApartmentFeeUnit <<Entity>> {
+  - id : Long  <<luôn = 1>>
+  - apartmentPricePerM2 : Long
+  - serviceFeePerM2 : Long
+  - waterFeePerM3 : Long
+  - electricityFeePerKWh : Long
+  - parkingFeePerMonth : Long
+  - parkingFeePerHour : Long
+}
+
+class Bill <<Entity>> {
+  - id : Long
+  - apartmentNumber : String
+  - billType : BillType
+  - amount : Double
+  - dueDate : LocalDate
+  - description : String
+  - status : BillStatus
+  - createdAt : LocalDateTime
+  + isPaid() : boolean
+  + markAsPaid() : void
+}
+
+class ContributionType <<Entity>> {
+  - id : Long
+  - name : String
+  - description : String
+  - createdAt : LocalDateTime
+  - createdBy : Long
+  - isActive : Boolean
+}
+
+class Contribution <<Entity>> {
+  - id : Long
+  - contributionTypeId : Long
+  - title : String
+  - description : String
+  - startDate : LocalDate
+  - endDate : LocalDate
+  - targetAmount : Double
+  - currentAmount : Double
+  - createdAt : LocalDateTime
+  - createdBy : Long
+  - status : ContributionStatus
+}
+
+class ResidentContribution <<Entity>> {
+  - id : Long
+  - contributionId : Long
+  - residentId : Long
+  - apartmentNumber : String
+  - amount : Long
+  - note : String
+  - paymentStatus : PaymentStatus
+  - paidAt : LocalDateTime
+  - createdAt : LocalDateTime
+  - updatedAt : LocalDateTime
+  - contributionName : String
+}
+
+enum Role {
+  ADMIN
+  RESIDENT
+}
+enum ResidentStatus {
+  THUONGTRU
+  TAMTRU
+  TAMVANG
+}
+enum ApartmentStatus {
+  OCCUPIED
+  VACANT
+  RENT
+}
+enum ApartmentType {
+  KIOT
+  STANDARD
+  PENHOUSE
+}
+enum BillType {
+  FIXED_COST
+  SERVICE_COST
+  CONTRIBUTION
+  ELECTRICITY
+  WATER
+  OTHER
+}
+enum BillStatus {
+  UNPAID
+  PAID
+}
+enum ContributionStatus {
+  ACTIVE
+  CLOSED
+  CANCELED
+}
+enum PaymentStatus {
+  UNPAID
+  PAID
+  FAILED
+  REFUNDED
+}
+
+User "0..1" -- "1" Resident : residentId >
+Resident "*" -- "*" Apartment : apartmentNumbers / residentIds
+Apartment "1" -- "*" Bill : apartmentNumber / billIds
+ContributionType "1" -- "*" Contribution : contributionTypeId <
+Contribution "1" -- "*" ResidentContribution : contributionId <
+Resident "1" -- "*" ResidentContribution : residentId <
+Apartment "1" -- "*" ResidentContribution : apartmentNumber <
+ApartmentFeeUnit ..> Bill : đơn giá dùng để\ntính số tiền
+
+Resident --> Role
+Resident --> ResidentStatus
+Apartment --> ApartmentStatus
+Apartment --> ApartmentType
+Bill --> BillType
+Bill --> BillStatus
+Contribution --> ContributionStatus
+ResidentContribution --> PaymentStatus
+
+note "Các bảng liên kết với nhau bằng ID hoặc số căn hộ,\nkhông dùng quan hệ JPA (@ManyToOne, @OneToMany).\nCSDL: PostgreSQL, Hibernate ddl-auto=update." as N1
+@enduml

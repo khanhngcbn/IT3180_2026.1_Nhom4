@@ -1,0 +1,74 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #F5F9FF
+  BorderColor #3A6EA5
+}
+skinparam actorBorderColor #3A6EA5
+left to right direction
+title Sơ đồ Use Case - Hệ thống quản lý chung cư BlueMoon\n
+
+actor "Khách\n(chưa đăng nhập)" as Guest
+actor "Cư dân" as Resident
+actor "Ban quản lý / Kế toán\n(ADMIN)" as Admin
+actor "Gmail SMTP\n<<hệ thống ngoài>>" as Mail
+
+rectangle "Hệ thống BlueMoon" {
+  rectangle "Quản trị (ADMIN)" {
+    usecase "Quản trị tài khoản: thêm, sửa,\nxóa, đổi vai trò (US23)" as UC_ManageAcc
+    usecase "Kích hoạt / vô hiệu hóa\nđơn lẻ và hàng loạt (US23)" as UC_Activate
+    usecase "Quản lý hồ sơ cư dân,\ngắn với căn hộ (US01)" as UC_Resident
+    usecase "Quản lý căn hộ, cập nhật\ntrạng thái hàng loạt (US02)" as UC_Apartment
+    usecase "Lọc căn hộ, xem cư dân\ntrong căn hộ (US03)" as UC_Filter
+    usecase "Thiết lập đơn giá: căn hộ, dịch vụ,\nđiện, nước, gửi xe (US05)" as UC_FeeUnit
+    usecase "Tạo, sửa, xóa, tìm khoản thu\ntheo căn hộ (US06)" as UC_Bill
+    usecase "Tạo khoản thu điện, nước\nhàng loạt (US07)" as UC_Utility
+    usecase "Xác nhận thanh toán\ntiền mặt (US12)" as UC_Confirm
+    usecase "Quản lý loại và đợt đóng góp:\ntạo, sửa, đóng, hủy, mở lại (US15)" as UC_Contrib
+    usecase "Tạo khoản đóng góp\ncho toàn bộ căn hộ" as UC_ContribAll
+    usecase "Xuất Excel tài khoản,\nđóng góp" as UC_Export
+  }
+
+  rectangle "Dành cho cư dân" {
+    usecase "Xem khoản phải thu\ncủa căn hộ mình (US08)" as UC_ViewBill
+    usecase "Xem và đăng ký đóng góp" as UC_ResContrib
+  }
+
+  rectangle "Tài khoản (EP-05)" {
+    usecase "Đăng ký tài khoản (US21)" as UC_Register
+    usecase "Xác minh email bằng OTP" as UC_VerifyOtp
+    usecase "Gửi lại OTP" as UC_ResendOtp
+    usecase "Đăng nhập JWT (US22)" as UC_Login
+    usecase "Quên mật khẩu,\nđặt lại bằng OTP (US22)" as UC_Forgot
+    usecase "Đổi mật khẩu (US22)" as UC_ChangePw
+  }
+}
+
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_Forgot
+Resident --> UC_ChangePw
+Resident --> UC_ViewBill
+Resident --> UC_ResContrib
+
+UC_Register ..> UC_VerifyOtp : <<include>>
+UC_ResendOtp ..> UC_VerifyOtp : <<extend>>
+UC_VerifyOtp --> Mail
+UC_Forgot --> Mail
+
+Admin --> UC_ManageAcc
+Admin --> UC_Activate
+Admin --> UC_Resident
+Admin --> UC_Apartment
+Admin --> UC_Filter
+Admin --> UC_FeeUnit
+Admin --> UC_Bill
+Admin --> UC_Utility
+Admin --> UC_Confirm
+Admin --> UC_Contrib
+Admin --> UC_Export
+Admin --> UC_ChangePw
+UC_ContribAll ..> UC_Contrib : <<extend>>
+@enduml
