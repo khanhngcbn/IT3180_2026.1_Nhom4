@@ -270,8 +270,8 @@ function SignIn() {
               variant='auth'
               fontSize='sm'
               ms={{ base: "0px", md: "0px" }}
-              type='email'
-              placeholder='mail@simmmple.com'
+              type='text'
+              placeholder='Tên đăng nhập, VD: admin'
               mb='24px'
               fontWeight='500'
               size='lg'

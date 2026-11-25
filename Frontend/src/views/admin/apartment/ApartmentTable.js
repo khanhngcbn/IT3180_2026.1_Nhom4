@@ -644,6 +644,25 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
         <Flex align="center" gap="8px" flexWrap="wrap">
           <Button
+            leftIcon={<FiPlus />}
+            variant="darkBrand"
+            color="white"
+            fontSize="sm"
+            fontWeight="500"
+            borderRadius="10px"
+            px="15px"
+            py="5px"
+            onClick={() => {
+              setError([]);
+              setNewUser({ apartmentNumber: '', roomNumber: '', floor: '', area: '', type: 'STANDARD', status: 'VACANT' });
+              setIdEdit(0);
+              setMode('create');
+              onOpen();
+            }}
+          >
+            New Apartment
+          </Button>
+          <Button
             leftIcon={<FiFilter />}
             variant="darkBrand"
             color="white"

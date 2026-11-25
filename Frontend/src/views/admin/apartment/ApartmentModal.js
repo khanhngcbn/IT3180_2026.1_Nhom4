@@ -42,8 +42,8 @@ const AppartmentModal = ({ isOpen, onClose, mode, userData, onSubmit, error }) =
               ...(mode !== 'view' ? { roomNumber: '' } : {}),
               ...(mode !== 'view' ? { floor: '' } : {}),
               ...(mode !== 'view' ? { area: '' } : {}),
-              ...(mode !== 'view' ? { type: '' } : {}),
-              ...(mode !== 'view' ? { status: '' } : {}),
+              ...(mode !== 'view' ? { type: 'STANDARD' } : {}),
+              ...(mode !== 'view' ? { status: 'VACANT' } : {}),
               ...(mode === 'view' ? { residents: '' } : {}),
           });
       }

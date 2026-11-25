@@ -33,7 +33,27 @@ public class AdminListApartmentController {
 
     // API thêm căn hộ mới
     @PostMapping("/add-apartment")
-    public ResponseEntity<String> addApartment(@RequestBody ApartmentDTO apartmentDTO) {
+    public ResponseEntity<?> addApartment(@RequestBody ApartmentDTO apartmentDTO) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        String number = apartmentDTO.getApartmentNumber() == null ? "" : apartmentDTO.getApartmentNumber().trim();
+        if (number.isEmpty()) {
+            errors.put("apartmentNumber", "Số căn hộ không được để trống");
+        } else if (apartmentService.existsByApartmentNumber(number)) {
+            errors.put("apartmentNumber", "Số căn hộ đã tồn tại");
+        }
+        if (apartmentDTO.getRoomNumber() == null || apartmentDTO.getRoomNumber().isBlank()) {
+            errors.put("roomNumber", "Số phòng không được để trống");
+        }
+        if (apartmentDTO.getFloor() == null || apartmentDTO.getFloor() < 1) {
+            errors.put("floor", "Tầng phải lớn hơn hoặc bằng 1");
+        }
+        if (apartmentDTO.getArea() == null || apartmentDTO.getArea() <= 0) {
+            errors.put("area", "Diện tích phải lớn hơn 0");
+        }
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
+        apartmentDTO.setApartmentNumber(number);
         apartmentService.saveApartment(apartmentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body("Apartment created successfully");
     }

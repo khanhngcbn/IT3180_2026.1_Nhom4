@@ -99,10 +99,19 @@ public class AdminListUserController {
         userService.addUser(manualUserDTO);
         return ResponseEntity.ok("User added successfully");
     }
+    /** Không thao tác lên chính mình, lên tài khoản "admin", và chỉ super admin mới thao tác lên ADMIN khác. */
+    private boolean isProtected(User target) {
+        User current = getCurrentUser();
+        return target.getId().equals(current.getId())
+                || "admin".equals(target.getName())
+                || ("ADMIN".equals(target.getRole()) && !isCurrentUserSuperAdmin());
+    }
+
     @PostMapping("/delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         User user = userService.findById(id);
         if (user == null || user.getResidentId() == null) return ResponseEntity.status(404).body("User not found");
+        if (isProtected(user)) return ResponseEntity.status(403).body("Bạn không có quyền thao tác trên tài khoản này");
         Resident resident = residentService.findById(user.getResidentId());
         boolean deleted = userService.deleteUser(id) && residentService.deleteResident(user.getResidentId());
         return deleted ? ResponseEntity.ok("success") : ResponseEntity.status(500).body("error");
@@ -112,8 +121,9 @@ public class AdminListUserController {
     public ResponseEntity<String> deactivateUser(@PathVariable Long id) {
         User user = userService.findById(id);
         if (user == null || user.getResidentId() == null) return ResponseEntity.status(404).body("User not found");
+        if (isProtected(user)) return ResponseEntity.status(403).body("Bạn không có quyền khóa tài khoản này");
         Resident resident = residentService.findById(user.getResidentId());
-        apartmentService.deleteResident(resident);
+        apartmentService.detachResident(resident);
         boolean result = userService.deactivateUser(id);
         return result ? ResponseEntity.ok("success") : ResponseEntity.status(500).body("error");
     }
@@ -162,10 +172,13 @@ public class AdminListUserController {
 
     @PostMapping("/activate/{id}")
     public ResponseEntity<String> activateUser(@PathVariable Long id) {
+        User target = userService.findById(id);
+        if (target == null) return ResponseEntity.status(404).body("User not found");
+        if (isProtected(target)) return ResponseEntity.status(403).body("Bạn không có quyền thao tác trên tài khoản này");
         boolean activated = userService.activateUser(id);
         User user = userService.findById(id);
-        Resident resident = residentService.findById(user.getResidentId());
-        apartmentService.updateResident(resident);
+        Resident resident = user.getResidentId() == null ? null : residentService.findById(user.getResidentId());
+        apartmentService.reattachResident(resident);
         return activated ? ResponseEntity.ok("success") : ResponseEntity.status(500).body("error");
     }
 
@@ -194,7 +207,7 @@ public class AdminListUserController {
 
         for (Long id : ids) {
             User user = userService.findById(id);
-            if (user == null || user.getResidentId() == null) {
+            if (user == null || user.getResidentId() == null || isProtected(user)) {
                 failed.add(id);
                 continue;
             }
@@ -229,11 +242,11 @@ public class AdminListUserController {
         for (Long id : ids) {
             try {
                 User user = userService.findById(id);
-                if (user != null) {
+                if (user != null && !isProtected(user)) {
                     user.setActivation(true);
                     userService.save(user);
-                    Resident resident = residentService.findById(user.getResidentId());
-                    if (resident != null) apartmentService.updateResident(resident);
+                    Resident resident = user.getResidentId() == null ? null : residentService.findById(user.getResidentId());
+                    if (resident != null) apartmentService.reattachResident(resident);
                     count++;
                 } else failed.add(id);
             } catch (Exception e) {
@@ -280,7 +293,7 @@ public class AdminListUserController {
                     continue;
                 }
                 Resident resident = user.getResidentId() == null ? null : residentService.findById(user.getResidentId());
-                if (resident != null) apartmentService.deleteResident(resident);
+                if (resident != null) apartmentService.detachResident(resident);
                 if (userService.deactivateUser(id)) {
                     count++;
                 } else {

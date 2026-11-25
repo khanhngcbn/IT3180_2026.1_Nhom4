@@ -41,7 +41,8 @@ public class UserService {
         resident.setAge(request.getAge());
         resident.setPhone(request.getPhone());
         resident.setEmail(request.getEmail());
-        resident.setApartmentNumbers(request.getApartmentNumbers());
+        resident.setApartmentNumbers(request.getApartmentNumbers() == null
+                ? new HashSet<>() : new HashSet<>(request.getApartmentNumbers()));
         residentRepository.save(resident);
 
         User user = new User();
@@ -50,6 +51,9 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setDateCreated(AppClock.todayText());
         userRepository.save(user);
+
+        // Gắn cư dân tự đăng ký vào căn hộ đã chọn, giống khi Ban quản lý thêm cư dân
+        apartmentService.updateResident(resident);
     }
     public void addUser(ManualUserDTO request) {
         Resident resident = new Resident();

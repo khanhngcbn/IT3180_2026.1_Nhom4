@@ -35,7 +35,7 @@ public class ApartmentConfig {
             for (int i = 1; i <= 5; i++) {
                 Apartment apartment = new Apartment();
 
-                // Format: A0001 -> A0150
+                // Format: A0001 -> A0050
                 String apartmentNumber = String.format("A%04d", apartmentCounter++);
                 apartment.setApartmentNumber(apartmentNumber);
                 apartment.setFloor(floor);
@@ -75,6 +75,6 @@ public class ApartmentConfig {
         }
 
         apartmentRepository.saveAll(apartments);
-        System.out.println("Đã khởi tạo 150 căn hộ!");
+        System.out.println("Đã khởi tạo " + apartments.size() + " căn hộ!");
     }
 }

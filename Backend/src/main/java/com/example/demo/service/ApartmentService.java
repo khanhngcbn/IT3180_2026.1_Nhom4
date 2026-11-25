@@ -76,9 +76,14 @@ public class ApartmentService {
         apartment.setRoomNumber(apartmentDTO.getRoomNumber());
         apartment.setFloor(apartmentDTO.getFloor());
         apartment.setArea(apartmentDTO.getArea());
-        apartment.setType(apartmentDTO.getType());
+        apartment.setType(apartmentDTO.getType() != null ? apartmentDTO.getType() : ApartmentType.STANDARD);
+        apartment.setStatus(apartmentDTO.getStatus() != null ? apartmentDTO.getStatus() : ApartmentStatus.VACANT);
 
         apartmentRepository.save(apartment);
+    }
+
+    public boolean existsByApartmentNumber(String apartmentNumber) {
+        return apartmentRepository.existsByApartmentNumber(apartmentNumber);
     }
 
     public void updateApartment(ApartmentDTO apartmentDTO) {
@@ -162,6 +167,36 @@ public class ApartmentService {
             updateResident(addedApartments, resident);
         }
 //        residentRepository.save(resident);
+    }
+
+    /** Gỡ cư dân khỏi các căn hộ (khi khóa tài khoản). Giữ nguyên danh sách căn hộ trong hồ sơ để mở lại thì gắn lại. */
+    public void detachResident(Resident resident) {
+        if (resident == null || resident.getApartmentNumbers() == null) return;
+        for (String apartmentNumber : new HashSet<>(resident.getApartmentNumbers())) {
+            Apartment apartment = apartmentRepository.findByApartmentNumber(apartmentNumber);
+            if (apartment == null || apartment.getResidentIds() == null) continue;
+            apartment.getResidentIds().remove(resident.getId());
+            if (apartment.getResidentIds().isEmpty() && apartment.getStatus() == ApartmentStatus.RENT) {
+                apartment.setStatus(ApartmentStatus.VACANT);
+            }
+            apartmentRepository.save(apartment);
+        }
+    }
+
+    /** Gắn lại cư dân vào các căn hộ trong hồ sơ (khi mở lại tài khoản), không tạo lại khoản phí. */
+    public void reattachResident(Resident resident) {
+        if (resident == null || resident.getApartmentNumbers() == null) return;
+        for (String apartmentNumber : new HashSet<>(resident.getApartmentNumbers())) {
+            Apartment apartment = apartmentRepository.findByApartmentNumber(apartmentNumber);
+            if (apartment == null) continue;
+            Set<Long> ids = apartment.getResidentIds() == null ? new HashSet<>() : apartment.getResidentIds();
+            ids.add(resident.getId());
+            apartment.setResidentIds(ids);
+            if (apartment.getStatus() == ApartmentStatus.VACANT) {
+                apartment.setStatus(ApartmentStatus.RENT);
+            }
+            apartmentRepository.save(apartment);
+        }
     }
 
     public void deleteResident(Resident resident) {
