@@ -1,0 +1,155 @@
+@startuml
+!include ../style.iuml
+skinparam entityBackgroundColor #FFFFCC
+skinparam entityBorderColor black
+skinparam linetype polyline
+skinparam nodesep 70
+skinparam ranksep 90
+title BlueMoon — Database ERD (PostgreSQL)
+
+' Kiểu cột lấy từ DDL Hibernate sinh cho PostgreSQL.
+' enum = varchar(255) kèm ràng buộc CHECK.
+' FK  = có ràng buộc khóa ngoại trong database.
+' FK* = tham chiếu do ứng dụng kiểm soát, database không có ràng buộc khóa ngoại.
+
+entity "USERS" as users {
+  bigint id <b>PK</b>
+  --
+  varchar name
+  varchar password
+  varchar role
+  boolean activation
+  bigint resident_id <b>FK*</b>
+  varchar date_created
+}
+
+entity "RESIDENTS" as residents {
+  bigint id <b>PK</b>
+  --
+  varchar full_name
+  varchar email <b>UK</b>
+  varchar phone
+  bigint age
+  varchar gender
+  enum role
+  enum status
+}
+
+entity "RESIDENT_APARTMENT_NUMBERS" as resident_apartment_numbers {
+  bigint resident_id <b>FK</b>
+  varchar apartment_number <b>FK*</b>
+}
+
+entity "APARTMENTS" as apartments {
+  bigint id <b>PK</b>
+  --
+  varchar apartment_number <b>UK</b>
+  varchar room_number
+  integer floor
+  float area
+  enum status
+  enum type
+}
+
+entity "APARTMENT_RESIDENTS" as apartment_residents {
+  bigint apartment_id <b>FK</b>
+  bigint resident_id <b>FK*</b>
+}
+
+entity "APARTMENT_BILLS" as apartment_bills {
+  bigint apartment_id <b>FK</b>
+  bigint bill_id <b>FK*</b>
+}
+
+entity "BILLS" as bills {
+  bigint id <b>PK</b>
+  --
+  varchar apartment_number <b>FK*</b>
+  enum bill_type
+  float amount
+  date due_date
+  varchar description
+  enum status
+  timestamp created_at
+}
+
+entity "APARTMENT_FEE_UNITS" as apartment_fee_units {
+  bigint id <b>PK</b>
+  --
+  bigint apartment_price_per_m2
+  bigint service_fee_per_m2
+  bigint water_fee_per_m3
+  bigint electricity_fee_per_kwh
+  bigint parking_fee_per_month
+  bigint parking_fee_per_hour
+}
+
+entity "CONTRIBUTION_TYPES" as contribution_types {
+  bigint id <b>PK</b>
+  --
+  varchar name
+  varchar description
+  timestamp created_at
+  bigint created_by <b>FK*</b>
+  boolean is_active
+}
+
+entity "CONTRIBUTIONS" as contributions {
+  bigint id <b>PK</b>
+  --
+  bigint contribution_type_id <b>FK*</b>
+  varchar title
+  varchar description
+  date start_date
+  date end_date
+  float target_amount
+  float current_amount
+  timestamp created_at
+  bigint created_by <b>FK*</b>
+  enum status
+}
+
+entity "RESIDENT_CONTRIBUTIONS" as resident_contributions {
+  bigint id <b>PK</b>
+  --
+  bigint contribution_id <b>FK*</b>
+  bigint resident_id <b>FK*</b>
+  varchar apartment_number <b>FK*</b>
+  bigint amount
+  varchar note
+  enum payment_status
+  timestamp paid_at
+  timestamp created_at
+  timestamp updated_at
+  varchar contribution_type_name
+}
+
+' Nét liền: khóa ngoại thật. Nét đứt: tham chiếu do ứng dụng kiểm soát.
+residents |o..o| users : "có tài khoản"
+residents ||--o{ resident_apartment_numbers : "ở"
+apartments ||..o{ resident_apartment_numbers : "gồm"
+apartments ||--o{ apartment_residents : "có cư dân"
+residents ||..o{ apartment_residents : "thuộc"
+apartments ||--o{ apartment_bills : "liệt kê"
+bills ||..o| apartment_bills : "nằm trong"
+apartments ||..o{ bills : "phát sinh"
+users ||..o{ contribution_types : "tạo"
+users ||..o{ contributions : "tạo"
+contribution_types ||..o{ contributions : "phân loại"
+contributions ||..o{ resident_contributions : "nhận"
+residents ||..o{ resident_contributions : "đóng góp"
+apartments ||..o{ resident_contributions : "theo căn hộ"
+
+note bottom of apartment_fee_units
+  Bảng giá dùng chung, chỉ một dòng (id = 1).
+  Khoản thu điện, nước, phí căn hộ tính theo bảng này
+  rồi lưu số tiền vào BILLS.
+end note
+
+legend right
+  <b>PK</b> khóa chính, <b>UK</b> duy nhất
+  <b>FK</b> khóa ngoại có ràng buộc trong database (nét liền)
+  <b>FK*</b> tham chiếu do ứng dụng kiểm soát (nét đứt)
+  enum: varchar(255) kèm ràng buộc CHECK
+endlegend
+@enduml
