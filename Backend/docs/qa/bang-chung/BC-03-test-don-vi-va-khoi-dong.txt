@@ -1,0 +1,24 @@
+# BC-03 - Test đơn vị backend và log khởi động (trích từ đầu ra thật)
+# Ngày chạy: 26/11/2026. JDK: openjdk version "17.0.21" 2026-10-20
+
+## 1. ./mvnw -B test (dòng tóm tắt của Maven Surefire)
+Running com.example.demo.DemoApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.06 s -- in com.example.demo.DemoApplicationTests
+Running com.example.demo.service.CommunityEventServiceTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in com.example.demo.service.CommunityEventServiceTest
+Running com.example.demo.service.OTPServiceTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.095 s -- in com.example.demo.service.OTPServiceTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+
+## 2. Log khởi động backend dùng cho BC-01 và BC-02 (các dòng về dữ liệu mẫu)
+# 50 dòng "status = VACANT" do ApartmentConfig in ra, mỗi dòng là một căn hộ được tạo; dưới đây ghi gọn thành 1 dòng đếm:
+status = VACANT  (x50)
+Đã khởi tạo 150 căn hộ!
+c.e.demo.config.DemoAccountInitializer   : Đã tạo tài khoản mẫu 'ketoan' (ADMIN)
+c.e.demo.config.DemoAccountInitializer   : Đã tạo tài khoản mẫu 'cudan01' (USER)
+c.e.demo.config.DemoAccountInitializer   : Đã tạo tài khoản mẫu 'cudan02' (USER)
+c.e.demo.config.DemoAccountInitializer   : Đã tạo tài khoản mẫu 'cudankhoa' (USER)
+
+## 3. Đối chiếu số căn hộ bằng API (GET /api/admin/apartment-list ngay sau khi chạy BC-01)
+Căn hộ mẫu A00xx: 50 căn, từ A0001 đến A0050, tầng 1-10 -> log "150 căn hộ" ở mục 2 sai (LOI-12).
