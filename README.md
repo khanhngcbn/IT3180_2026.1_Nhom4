@@ -55,10 +55,10 @@ Lần chạy đầu, backend tự tạo bảng và các tài khoản dưới đ�
 | Vai trò | Tên đăng nhập | Mật khẩu ban đầu | Họ tên | Căn hộ | Ghi chú |
 |---|---|---|---|---|---|
 | Ban quản lý (`ADMIN`) | `admin` | `1234567890` | Admin User | – | Super admin, khóa được cả tài khoản `ADMIN` khác |
-| Kế toán (`ADMIN`) | `ketoan` | `Ketoan@123` | Nguyễn Thị Ngân | – | Quyền quản trị, không khóa được tài khoản `ADMIN` khác |
-| Cư dân (`USER`) | `cudan01` | `Cudan01@123` | Trần Minh An | `A0012` | Thường trú |
-| Cư dân (`USER`) | `cudan02` | `Cudan02@123` | Lê Thu Hà | `A0023`, `A0024` | Tạm trú, ở hai căn hộ |
-| Cư dân bị khóa (`USER`) | `cudankhoa` | `Cudankhoa@123` | Phạm Văn Khóa | – | Đã vô hiệu hóa, dùng để kiểm thử đăng nhập bị từ chối |
+| Kế toán (`ADMIN`) | `ketoan` | `Ketoan@123` | Nguyễn Văn A | – | Quyền quản trị, không khóa được tài khoản `ADMIN` khác |
+| Cư dân (`USER`) | `cudan01` | `Cudan01@123` | Phạm Văn B | `A0012` | Thường trú |
+| Cư dân (`USER`) | `cudan02` | `Cudan02@123` | Nguyễn Thị C | `A0023`, `A0024` | Tạm trú, ở hai căn hộ |
+| Cư dân bị khóa (`USER`) | `cudankhoa` | `Cudankhoa@123` | Trần Văn D | – | Đã vô hiệu hóa, dùng để kiểm thử đăng nhập bị từ chối |
 
 Email của các tài khoản mẫu dùng tên miền `bluemoon.test` (riêng `admin` là `admin@gmail.com`), nên OTP của chúng không tới hộp thư thật nào. Khi gắn cư dân vào căn hộ, hệ thống chuyển căn hộ sang trạng thái `RENT` và tạo sẵn các khoản phí căn hộ, dịch vụ, quản lý, nên cư dân mẫu đăng nhập vào là có khoản thu để xem. Khi triển khai thật, đặt `SEED_DEMO_ACCOUNTS=false` để không tạo tài khoản mẫu, và đổi mật khẩu `admin` ngay sau lần đăng nhập đầu.
 

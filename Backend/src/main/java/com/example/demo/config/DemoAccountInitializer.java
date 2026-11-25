@@ -35,13 +35,13 @@ public class DemoAccountInitializer implements CommandLineRunner {
     }
 
     static final List<DemoAccount> ACCOUNTS = List.of(
-            new DemoAccount("ketoan", "Ketoan@123", "ADMIN", "Nguyễn Thị Ngân", 35,
+            new DemoAccount("ketoan", "Ketoan@123", "ADMIN", "Nguyễn Văn A", 35,
                     "0901000002", "ketoan@bluemoon.test", Set.of(), ResidentStatus.THUONGTRU, true),
-            new DemoAccount("cudan01", "Cudan01@123", "USER", "Trần Minh An", 42,
+            new DemoAccount("cudan01", "Cudan01@123", "USER", "Phạm Văn B", 42,
                     "0901000003", "cudan01@bluemoon.test", Set.of("A0012"), ResidentStatus.THUONGTRU, true),
-            new DemoAccount("cudan02", "Cudan02@123", "USER", "Lê Thu Hà", 29,
+            new DemoAccount("cudan02", "Cudan02@123", "USER", "Nguyễn Thị C", 29,
                     "0901000004", "cudan02@bluemoon.test", Set.of("A0023", "A0024"), ResidentStatus.TAMTRU, true),
-            new DemoAccount("cudankhoa", "Cudankhoa@123", "USER", "Phạm Văn Khóa", 50,
+            new DemoAccount("cudankhoa", "Cudankhoa@123", "USER", "Trần Văn D", 50,
                     "0901000005", "cudankhoa@bluemoon.test", Set.of(), ResidentStatus.TAMVANG, false)
     );
 
