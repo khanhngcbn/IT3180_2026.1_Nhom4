@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   SimpleGrid,
@@ -22,20 +22,44 @@ import 'react-calendar/dist/Calendar.css';
 import playImg from '../../../assets/img/play.jpg';
 import gymImg from '../../../assets/img/gym.jpg';
 import poolImg from '../../../assets/img/pool.jpg';
-
-const events = [
-  { date: '25/05/2025', title: 'Họp cư dân định kỳ', description: 'Thảo luận về quy định chung và kế hoạch bảo trì.' },
-  { date: '01/06/2025', title: 'Ngày hội gia đình', description: 'Sự kiện ngoài trời với trò chơi và tiệc BBQ.' },
-  { date: '15/06/2025', title: 'Dọn dẹp cộng đồng', description: 'Hoạt động làm sạch khu vực chung cư.' },
-  { date: '20/06/2025', title: 'Ngày hội văn hóa', description: 'Trình diễn nghệ thuật và ẩm thực địa phương.' },
-  { date: '30/06/2025', title: 'Họp ban quản trị', description: 'Xem xét ngân sách và kế hoạch năm mới.' },
-];
+import {
+  EVENT_MAX,
+  EVENT_PAGE_SIZE,
+  fetchUpcomingEvents,
+  formatEventDate,
+  formatEventTime,
+} from 'services/eventService';
 
 const HomePage = () => {
   const textColor = useColorModeValue('gray.800', 'white');
   const tableHeaderBg = useColorModeValue('blue.600', 'blue.800');
   const tableHeaderColor = useColorModeValue('white', 'gray.200');
   const hoverBg = useColorModeValue('gray.100', 'gray.700');
+  const [events, setEvents] = useState([]);
+  const [eventLimit, setEventLimit] = useState(EVENT_PAGE_SIZE);
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [eventsError, setEventsError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    setEventsLoading(true);
+    fetchUpcomingEvents(eventLimit)
+      .then((data) => {
+        if (!cancelled) {
+          setEvents(data);
+          setEventsError('');
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setEventsError('Không tải được danh sách sự kiện.');
+      })
+      .finally(() => {
+        if (!cancelled) setEventsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [eventLimit]);
 
   return (
     <Box minH="100vh" bg="gray.100" py={8} px={4} mt={16}>
@@ -160,16 +184,26 @@ const HomePage = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {events.map((event, index) => (
+                {events.length === 0 && (
+                  <Tr>
+                    <Td p={4} colSpan={3} textAlign="center" color="gray.500">
+                      {eventsLoading ? 'Đang tải sự kiện...' : eventsError || 'Chưa có sự kiện sắp tới.'}
+                    </Td>
+                  </Tr>
+                )}
+                {events.map((event) => (
                   <Tr
-                    key={index}
+                    key={`${event.date}-${event.title}`}
                     _hover={{ bg: hoverBg, transform: 'translateY(-2px)', transition: 'all 0.2s ease-in-out' }}
                     transition="all 0.2s ease-in-out"
                   >
                     <Td p={4}>
                       <Box display="flex" alignItems="center">
                         <Icon as={CalendarIcon} w={4} h={4} mr={2} color="blue.500" />
-                        {event.date}
+                        <Box>
+                          <Text>{formatEventDate(event.date)}</Text>
+                          <Text fontSize="sm" color="gray.500">{formatEventTime(event.time)}</Text>
+                        </Box>
                       </Box>
                     </Td>
                     <Td p={4}>{event.title}</Td>
@@ -188,6 +222,9 @@ const HomePage = () => {
               borderRadius="10px"
               px="15px"
               py="5px"
+              isLoading={eventsLoading}
+              isDisabled={eventLimit >= EVENT_MAX}
+              onClick={() => setEventLimit((limit) => Math.min(limit + EVENT_PAGE_SIZE, EVENT_MAX))}
             >
               Xem thêm sự kiện
             </Button>

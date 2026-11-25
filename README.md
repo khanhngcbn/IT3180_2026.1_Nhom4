@@ -9,6 +9,7 @@
 - Quản lý căn hộ (số căn hộ, số phòng, tầng, diện tích, loại, trạng thái), cập nhật trạng thái hàng loạt, lọc theo nhiều tiêu chí và xem cư dân trong từng căn hộ; hồ sơ cư dân gắn với một hoặc nhiều căn hộ.
 - Thiết lập đơn giá: phí căn hộ và phí dịch vụ theo m², điện theo kWh, nước theo m³, gửi xe theo tháng và theo giờ.
 - Tạo, sửa, xóa và tìm khoản thu theo căn hộ; tạo khoản thu điện, nước hàng loạt từ lượng tiêu thụ; xác nhận thanh toán tiền mặt. Cư dân chỉ xem được khoản thu của căn hộ mình.
+- Trang chủ hiển thị lịch sự kiện cộng đồng sắp tới (họp cư dân, dọn dẹp, ngày hội, họp ban quản trị), tính theo ngày hiện tại.
 - Quản lý loại và đợt đóng góp (mục tiêu số tiền, thời gian), đóng, hủy, mở lại đợt, tạo khoản đóng góp cho toàn bộ căn hộ và xuất Excel; cư dân xem và đăng ký đóng góp.
 
 ## Cài đặt và chạy
@@ -47,19 +48,27 @@ npm start
 
 Giao diện mở tại `http://localhost:3000`. `--legacy-peer-deps` tránh lỗi xung đột phiên bản thư viện; `--ignore-scripts` bỏ qua bước `preinstall` (`npx npm-force-resolutions`).
 
-Lần chạy đầu, backend tự tạo bảng và tài khoản quản trị dưới đây; đổi mật khẩu ngay sau lần đăng nhập đầu.
+### Tài khoản mẫu
 
-| Vai trò | Tên đăng nhập | Email | Số điện thoại | Mật khẩu ban đầu |
-|---|---|---|---|---|
-| Ban quản lý (`ADMIN`) | `admin` | `admin@gmail.com` | `0123456789` | `1234567890` |
+Lần chạy đầu, backend tự tạo bảng và các tài khoản dưới đây để kiểm thử từng vai trò. Tài khoản nào đã có thì không tạo lại.
 
-Không có tài khoản cư dân mẫu. Cư dân tự đăng ký ở màn hình **Sign Up** (liên kết **Create an Account** ở màn hình đăng nhập) rồi nhập OTP gửi về email, hoặc Ban quản lý thêm tài khoản ở màn hình **Resident Management**. Khi đăng ký cần tên đăng nhập chưa dùng, họ tên, tuổi (1–120), số điện thoại 10 chữ số và email chưa dùng; số căn hộ không bắt buộc, nhưng nếu nhập thì phải có trong hệ thống. Mật khẩu dài 8–16 ký tự, có chữ hoa, chữ thường, chữ số, ký tự đặc biệt và không chứa khoảng trắng. Phiên đăng ký hết hạn sau 5 phút nên cần nhập OTP trong thời gian này.
+| Vai trò | Tên đăng nhập | Mật khẩu ban đầu | Họ tên | Căn hộ | Ghi chú |
+|---|---|---|---|---|---|
+| Ban quản lý (`ADMIN`) | `admin` | `1234567890` | Admin User | – | Super admin, khóa được cả tài khoản `ADMIN` khác |
+| Kế toán (`ADMIN`) | `ketoan` | `Ketoan@123` | Nguyễn Thị Ngân | – | Quyền quản trị, không khóa được tài khoản `ADMIN` khác |
+| Cư dân (`USER`) | `cudan01` | `Cudan01@123` | Trần Minh An | `A0012` | Thường trú |
+| Cư dân (`USER`) | `cudan02` | `Cudan02@123` | Lê Thu Hà | `A0023`, `A0024` | Tạm trú, ở hai căn hộ |
+| Cư dân bị khóa (`USER`) | `cudankhoa` | `Cudankhoa@123` | Phạm Văn Khóa | – | Đã vô hiệu hóa, dùng để kiểm thử đăng nhập bị từ chối |
+
+Email của các tài khoản mẫu dùng tên miền `bluemoon.test` (riêng `admin` là `admin@gmail.com`), nên OTP của chúng không tới hộp thư thật nào. Khi gắn cư dân vào căn hộ, hệ thống chuyển căn hộ sang trạng thái `RENT` và tạo sẵn các khoản phí căn hộ, dịch vụ, quản lý, nên cư dân mẫu đăng nhập vào là có khoản thu để xem. Khi triển khai thật, đặt `SEED_DEMO_ACCOUNTS=false` để không tạo tài khoản mẫu, và đổi mật khẩu `admin` ngay sau lần đăng nhập đầu.
+
+Ngoài các tài khoản mẫu, cư dân tự đăng ký ở màn hình **Sign Up** (liên kết **Create an Account** ở màn hình đăng nhập) rồi nhập OTP gửi về email, hoặc Ban quản lý thêm tài khoản ở màn hình **Resident Management**. Khi đăng ký cần tên đăng nhập chưa dùng, họ tên, tuổi (1–120), số điện thoại 10 chữ số và email chưa dùng; số căn hộ không bắt buộc, nhưng nếu nhập thì phải có trong hệ thống. Mật khẩu dài 8–16 ký tự, có chữ hoa, chữ thường, chữ số, ký tự đặc biệt và không chứa khoảng trắng. Phiên đăng ký hết hạn sau 5 phút nên cần nhập OTP trong thời gian này.
 
 Màn hình đăng nhập nhận **tên đăng nhập** và mật khẩu (không đăng nhập bằng email hay số điện thoại). Ban quản lý được chuyển tới trang quản trị, cư dân tới trang cá nhân. Phiên đăng nhập (JWT) hết hạn sau 1 giờ. Người dùng có thể chọn **Forgot password?** ở màn hình đăng nhập để nhập tên đăng nhập; OTP được gửi tới email đã đăng ký của tài khoản đó, và ở bước đặt lại phải nhập đúng email này. OTP có hiệu lực 5 phút, chỉ dùng được một lần và bị hủy sau 3 lần nhập sai; mỗi email được yêu cầu tối đa 3 OTP trong 15 phút. Khi đã đăng nhập, thao tác **Change password** ở trang cá nhân yêu cầu mật khẩu hiện tại.
 
 ## Khởi tạo lại dữ liệu
 
-Backend dùng Hibernate với `ddl-auto=update`: mỗi lần khởi động tự tạo bảng và thêm cột mới nếu thiếu, nhưng không xóa hay đổi tên cột cũ. Khi khởi động, backend tạo tài khoản `admin` nếu chưa có, và tạo 50 căn hộ mẫu nếu bảng căn hộ đang trống: `A0001`–`A0050`, 10 tầng, mỗi tầng 5 căn; tầng 1 là `KIOT`, các tầng còn lại là `STANDARD`; tất cả ở trạng thái trống (`VACANT`) với diện tích ngẫu nhiên.
+Backend dùng Hibernate với `ddl-auto=update`: mỗi lần khởi động tự tạo bảng và thêm cột mới nếu thiếu, nhưng không xóa hay đổi tên cột cũ. Khi khởi động, backend tạo 50 căn hộ mẫu nếu bảng căn hộ đang trống: `A0001`–`A0050`, 10 tầng, mỗi tầng 5 căn; tầng 1 là `KIOT`, các tầng còn lại là `STANDARD`; tất cả ở trạng thái trống (`VACANT`) với diện tích ngẫu nhiên. Sau đó backend tạo các [tài khoản mẫu](#tài-khoản-mẫu) còn thiếu.
 
 Dữ liệu PostgreSQL nằm trong volume Docker `bluemoon_pgdata`. Để làm lại từ database trống, sao lưu dữ liệu cần giữ rồi chạy trong thư mục `Backend`, với `DB_PASSWORD` đã đặt:
 
@@ -68,7 +77,7 @@ docker compose down -v
 docker compose up -d
 ```
 
-Lệnh `down -v` xóa toàn bộ dữ liệu trong volume. Lần chạy backend tiếp theo sẽ tạo lại bảng, tài khoản `admin` và 50 căn hộ mẫu.
+Lệnh `down -v` xóa toàn bộ dữ liệu trong volume. Lần chạy backend tiếp theo sẽ tạo lại bảng, 50 căn hộ mẫu và các tài khoản mẫu.
 
 ## Cấu hình kết nối
 
@@ -82,6 +91,7 @@ Backend đọc cấu hình từ biến môi trường, mặc định trỏ tới
 | `MAIL_USERNAME` | ✅ | – | Địa chỉ Gmail gửi OTP |
 | `MAIL_PASSWORD` | ✅ | – | App Password của Gmail (không dùng mật khẩu Gmail thường) |
 | `JWT_SECRET` | ✅ | – | Chuỗi Base64 dài ít nhất 32 byte, dùng để ký JWT |
+| `SEED_DEMO_ACCOUNTS` | | `true` | `false` để không tạo [tài khoản mẫu](#tài-khoản-mẫu) khi khởi động |
 
 ```powershell
 $env:DB_URL = 'jdbc:postgresql://localhost:5432/chungcu_db'

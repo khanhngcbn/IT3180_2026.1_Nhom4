@@ -7,6 +7,7 @@ import com.example.demo.entity.Resident;
 import com.example.demo.entity.User;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.util.AppClock;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ public class UserService {
         user.setResidentId(resident.getId()); // Lấy ID sau khi lưu
         user.setName(request.getName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setDateCreated(AppClock.todayText());
         userRepository.save(user);
     }
     public void addUser(ManualUserDTO request) {
@@ -64,6 +66,7 @@ public class UserService {
         user.setName(request.getName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
+        user.setDateCreated(AppClock.todayText());
         userRepository.save(user);
 
         apartmentService.updateResident(resident);

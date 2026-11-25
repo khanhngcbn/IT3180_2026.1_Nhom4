@@ -4,12 +4,15 @@ import com.example.demo.entity.Resident;
 import com.example.demo.entity.User;
 import com.example.demo.repository.ResidentRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.util.AppClock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(1)
 public class AdminUserInitializer implements CommandLineRunner {
 
     @Autowired
@@ -36,7 +39,7 @@ public class AdminUserInitializer implements CommandLineRunner {
             adminUser.setPassword(passwordEncoder.encode("1234567890"));
             adminUser.setRole("ADMIN");
             adminUser.setActivation(true);
-            adminUser.setDateCreated("26/03/2025");
+            adminUser.setDateCreated(AppClock.todayText());
             userRepository.save(adminUser);
 
             System.out.println("Admin user created successfully!");
