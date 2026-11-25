@@ -1,0 +1,39 @@
+@startuml
+!include ../style.iuml
+left to right direction
+title BlueMoon — component diagram
+
+package "Frontend (React)" {
+  component "Giao diện\nđăng nhập, quản trị, cư dân" as UI
+  component "apiConfig\n(axios)" as Api
+}
+
+package "Backend (Spring Boot)" {
+  component "Security\nHomeSecurity, JwtAuthenticationFilter" as Sec
+  component "Controllers\nREST /api" as Ctrl
+  component "Tài khoản\nUserService, OTPService, JwtService" as Auth
+  component "Cư dân & căn hộ\nResidentService, ApartmentService" as Building
+  component "Thu phí\nApartmentFeeUnitService, BillService" as Billing
+  component "Đóng góp\nContributionService" as Contrib
+  component "Repository\nSpring Data JPA" as Repo
+  component "MailService" as Mail
+}
+
+database "PostgreSQL" as DB
+component "Gmail SMTP" as Smtp
+
+UI --> Api
+Api --> Sec : HTTP + JWT
+Sec --> Ctrl
+Ctrl --> Auth
+Ctrl --> Building
+Ctrl --> Billing
+Ctrl --> Contrib
+Auth --> Repo
+Building --> Repo
+Billing --> Repo
+Contrib --> Repo
+Auth --> Mail
+Repo --> DB : JDBC
+Mail --> Smtp : SMTP
+@enduml

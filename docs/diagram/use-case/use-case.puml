@@ -1,0 +1,43 @@
+@startuml
+!include ../style.iuml
+left to right direction
+title BlueMoon — use cases
+
+actor "Ban quản lý" as A
+actor "Cư dân" as R
+
+rectangle BlueMoon {
+  usecase "Đăng ký tài khoản" as Register
+  usecase "Đăng nhập / đổi mật khẩu" as Login
+  usecase "Quên mật khẩu" as Forgot
+  usecase "Xem khoản phải thu" as ViewBill
+  usecase "Đóng góp" as Donate
+  usecase "Quản lý tài khoản" as Accounts
+  usecase "Quản lý cư dân" as Residents
+  usecase "Quản lý căn hộ" as Apartments
+  usecase "Thiết lập đơn giá" as Fees
+  usecase "Quản lý khoản thu" as Bills
+  usecase "Tạo khoản thu điện, nước" as Utilities
+  usecase "Xác nhận thanh toán" as Pay
+  usecase "Quản lý đợt đóng góp" as Contrib
+  usecase "Xuất Excel" as Export
+}
+
+R -- Register
+R -- Login
+R -- Forgot
+R -- ViewBill
+R -- Donate
+
+Login -- A
+Forgot -- A
+Accounts -- A
+Residents -- A
+Apartments -- A
+Fees -- A
+Bills -- A
+Utilities -- A
+Pay -- A
+Contrib -- A
+Export -- A
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+!include ../style.iuml
+title Đăng ký tài khoản
+
+|Cư dân|
+start
+:Nhập thông tin đăng ký;
+|Hệ thống BlueMoon|
+:Kiểm tra thông tin;
+if (Thông tin hợp lệ?) then (không)
+  |Cư dân|
+  :Báo lỗi thông tin;
+  stop
+else (có)
+  |Hệ thống BlueMoon|
+  :Tạo mã OTP;
+  |Gmail|
+  :Gửi OTP tới email;
+endif
+repeat
+  |Cư dân|
+  :Nhập OTP;
+  |Hệ thống BlueMoon|
+  :Kiểm tra OTP;
+repeat while (OTP đúng và còn hạn?) is (không) not (có)
+|CSDL PostgreSQL|
+:Lưu cư dân và tài khoản;
+|Cư dân|
+:Báo đăng ký thành công;
+stop
+@enduml

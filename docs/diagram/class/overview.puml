@@ -1,0 +1,135 @@
+@startuml
+!include ../style.iuml
+hide empty methods
+title BlueMoon — class diagram
+
+class User {
+  - id : Long
+  - name : String
+  - password : String
+  - role : String
+  - activation : boolean
+  - residentId : Long
+}
+
+class Resident {
+  - id : Long
+  - fullName : String
+  - email : String
+  - phone : String
+  - age : Long
+  - apartmentNumbers : Set<String>
+  - status : ResidentStatus
+}
+
+class Apartment {
+  - id : Long
+  - apartmentNumber : String
+  - roomNumber : String
+  - floor : Integer
+  - area : Double
+  - status : ApartmentStatus
+  - type : ApartmentType
+}
+
+class ApartmentFeeUnit {
+  - apartmentPricePerM2 : Long
+  - serviceFeePerM2 : Long
+  - waterFeePerM3 : Long
+  - electricityFeePerKWh : Long
+  - parkingFeePerMonth : Long
+  - parkingFeePerHour : Long
+}
+
+class Bill {
+  - id : Long
+  - apartmentNumber : String
+  - billType : BillType
+  - amount : Double
+  - dueDate : LocalDate
+  - description : String
+  - status : BillStatus
+}
+
+class ContributionType {
+  - id : Long
+  - name : String
+  - description : String
+  - isActive : Boolean
+}
+
+class Contribution {
+  - id : Long
+  - contributionTypeId : Long
+  - title : String
+  - startDate : LocalDate
+  - endDate : LocalDate
+  - targetAmount : Double
+  - currentAmount : Double
+  - status : ContributionStatus
+}
+
+class ResidentContribution {
+  - id : Long
+  - contributionId : Long
+  - residentId : Long
+  - apartmentNumber : String
+  - amount : Long
+  - paymentStatus : PaymentStatus
+}
+
+enum ResidentStatus {
+  THUONGTRU
+  TAMTRU
+  TAMVANG
+}
+enum ApartmentStatus {
+  OCCUPIED
+  VACANT
+  RENT
+}
+enum ApartmentType {
+  KIOT
+  STANDARD
+  PENHOUSE
+}
+enum BillType {
+  FIXED_COST
+  SERVICE_COST
+  CONTRIBUTION
+  ELECTRICITY
+  WATER
+  OTHER
+}
+enum BillStatus {
+  UNPAID
+  PAID
+}
+enum ContributionStatus {
+  ACTIVE
+  CLOSED
+  CANCELED
+}
+enum PaymentStatus {
+  UNPAID
+  PAID
+  FAILED
+  REFUNDED
+}
+
+User "0..1" -- "1" Resident
+Resident "*" -- "*" Apartment
+Apartment "1" -- "*" Bill
+ContributionType "1" -- "*" Contribution
+Contribution "1" -- "*" ResidentContribution
+Resident "1" -- "*" ResidentContribution
+ApartmentFeeUnit ..> Bill
+
+Resident --> ResidentStatus
+Apartment --> ApartmentStatus
+Apartment --> ApartmentType
+Bill --> BillType
+Bill --> BillStatus
+Contribution --> ContributionStatus
+ResidentContribution --> PaymentStatus
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+!include ../style.iuml
+title BlueMoon — deployment
+
+actor "Ban quản lý / Cư dân" as User
+
+node "Máy người dùng" {
+  artifact "Trình duyệt\nBlueMoon (React)" as Browser
+}
+
+node "Máy chủ" {
+  node "Node.js" {
+    artifact "Frontend\ncổng 3000" as Web
+  }
+  node "Java 17" {
+    artifact "Backend Spring Boot\ncổng 9090" as App
+  }
+  node "Docker" {
+    node "PostgreSQL 16" as Container {
+      database "chungcu_db" as DB
+    }
+    artifact "Volume bluemoon_pgdata" as Volume
+  }
+}
+
+node "Gmail SMTP" as Mail
+
+User --> Browser
+Browser --> Web : HTTP
+Browser --> App : REST + JWT
+App --> DB : JDBC cổng 5432
+Container --> Volume
+App --> Mail : gửi OTP
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+!include ../style.iuml
+title Đăng nhập
+
+actor "Người dùng" as User
+participant "ui : SignIn" as View
+participant "auth : AuthController" as Auth
+participant "users : CustomUserDetailsService" as Users
+database "CSDL PostgreSQL" as DB
+participant "jwt : JwtService" as Jwt
+
+User -> View : nhập tên đăng nhập, mật khẩu
+View -> Auth : login(username, password)
+Auth -> Users : loadUserByUsername(username)
+Users -> DB : tìm tài khoản
+DB --> Users : tài khoản
+alt không tồn tại hoặc bị vô hiệu hóa
+  Users --> Auth : từ chối
+  Auth --> View : 401
+  View --> User : báo đăng nhập thất bại
+else tài khoản hợp lệ
+  Users --> Auth : thông tin tài khoản
+  Auth -> Auth : kiểm tra mật khẩu BCrypt
+  alt mật khẩu sai
+    Auth --> View : 401
+    View --> User : báo đăng nhập thất bại
+  else mật khẩu đúng
+    Auth -> Jwt : generateToken(username, role)
+    Jwt --> Auth : token
+    Auth --> View : token
+    View --> User : mở giao diện theo vai trò
+  end
+end
+@enduml

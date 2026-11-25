@@ -1,0 +1,35 @@
+@startuml
+!include ../style.iuml
+title Quên mật khẩu
+
+actor "Người dùng" as User
+participant "ui : ForgotPassword" as View
+participant "auth : ForgotPasswordController" as Ctrl
+participant "otp : OTPService" as Otp
+database "CSDL PostgreSQL" as DB
+participant "Gmail" as Mail
+
+User -> View : nhập tên đăng nhập
+View -> Ctrl : forgotPassword(username)
+Ctrl -> Otp : sendResetPasswordOTP(username)
+Otp -> DB : tìm email của tài khoản
+DB --> Otp : email
+Otp -> Mail : gửi OTP
+Mail --> User : email chứa OTP
+Otp --> Ctrl : đã gửi
+Ctrl --> View : đã gửi
+
+User -> View : nhập email, OTP, mật khẩu mới
+View -> Ctrl : resetPassword(username, email, otp, newPassword)
+Ctrl -> Otp : verifyOTPAndChangePassword(...)
+alt email hoặc OTP không đúng
+  Otp --> Ctrl : thất bại
+  Ctrl --> View : 400
+  View --> User : báo OTP không hợp lệ
+else hợp lệ
+  Otp -> DB : lưu mật khẩu mới
+  Otp --> Ctrl : thành công
+  Ctrl --> View : 200
+  View --> User : quay lại đăng nhập
+end
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+!include ../style.iuml
+title Tạo khoản thu điện, nước
+
+|Ban quản lý|
+start
+:Mở màn hình tạo khoản thu điện, nước;
+|Hệ thống BlueMoon|
+:Lấy căn hộ đang có người ở và đơn giá điện, nước;
+|Ban quản lý|
+:Nhập số điện, số nước từng căn hộ và hạn đóng;
+|Hệ thống BlueMoon|
+if (Dữ liệu hợp lệ?) then (không)
+  |Ban quản lý|
+  :Báo lỗi dữ liệu;
+  stop
+else (có)
+  |Hệ thống BlueMoon|
+  :Tính tiền = lượng dùng × đơn giá;
+endif
+|CSDL PostgreSQL|
+:Lưu khoản thu điện, nước chưa thanh toán;
+|Ban quản lý|
+:Báo số khoản thu đã tạo;
+stop
+@enduml
