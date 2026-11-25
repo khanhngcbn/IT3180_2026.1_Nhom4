@@ -3,7 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.dto.BillDTO;
 import com.example.demo.entity.Bill;
 import com.example.demo.service.BillService;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,7 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/bills")  // API RESTful
@@ -20,6 +24,9 @@ public class AdminBillController {
 
     @Autowired
     private BillService billService;
+
+    @Autowired
+    private Validator validator;
 
     // Lấy danh sách tất cả khoản thu
     @GetMapping
@@ -45,10 +52,25 @@ public class AdminBillController {
 
     // Chỉnh sửa khoản thu
     @PutMapping("/edit/{id}")
-    public ResponseEntity<String> editBill(@PathVariable Long id, @Valid @RequestBody BillDTO billDTO) {
+    public ResponseEntity<?> editBill(@PathVariable Long id, @RequestBody BillDTO billDTO) {
         Bill bill = billService.getBillById(id);
         if (bill == null) {
             return ResponseEntity.notFound().build();
+        }
+
+        // Kiểm tra như khi tạo mới, nhưng khoản thu đã quá hạn vẫn được sửa nếu giữ nguyên hạn đóng cũ
+        Map<String, String> errors = new LinkedHashMap<>();
+        for (ConstraintViolation<BillDTO> violation : validator.validate(billDTO)) {
+            String field = violation.getPropertyPath().toString();
+            boolean keepsOldDueDate = "dueDate".equals(field)
+                    && billDTO.getDueDate() != null
+                    && billDTO.getDueDate().equals(bill.getDueDate());
+            if (!keepsOldDueDate) {
+                errors.putIfAbsent(field, violation.getMessage());
+            }
+        }
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
         }
         bill.setApartmentNumber(billDTO.getApartmentNumber());
         bill.setBillType(billDTO.getBillType());

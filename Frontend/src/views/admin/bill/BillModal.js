@@ -18,6 +18,23 @@ import {
   } from '@chakra-ui/react';
   import { useState, useEffect } from 'react';
   import { WarningIcon } from '@chakra-ui/icons'; 
+  import api from 'services/apiConfig';
+
+  // Các loại khoản thu (khớp enum BillType ở backend)
+  const BILL_TYPES = [
+    { value: 'FIXED_COST', label: 'FIXED_COST - Phí cố định' },
+    { value: 'SERVICE_COST', label: 'SERVICE_COST - Phí dịch vụ' },
+    { value: 'ELECTRICITY', label: 'ELECTRICITY - Tiền điện' },
+    { value: 'WATER', label: 'WATER - Tiền nước' },
+    { value: 'OTHER', label: 'OTHER - Khoản thu khác' },
+  ];
+
+  // Ngày hôm nay theo giờ máy, dạng yyyy-MM-dd (dùng cho ô chọn hạn đóng)
+  const todayIso = () => {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  };
   
   const BillModal = ({ isOpen, onClose, mode, userData, onSubmit, error }) => {
     const brandStars = useColorModeValue('brand.500', 'brand.400');
@@ -37,13 +54,26 @@ import {
         setFormData({
             ...(mode !== 'non' ? { apartmentNumber: '' } : {}), 
             ...(mode !== 'non' ? { billType: 'FIXED_COST' } : {}), 
-            ...(mode !== 'non' ? { description: '  ' } : {}), 
+            ...(mode !== 'non' ? { description: '' } : {}), 
             ...(mode !== 'non' ? { amount: '' } : {}), 
             ...(mode !== 'non' ? { dueDate: '' } : {}), 
         });
       }
     }, [mode, userData]);
   
+    const [apartmentNumbers, setApartmentNumbers] = useState([]);
+
+    useEffect(() => {
+      if (!isOpen || mode === 'view') return;
+      api
+        .get('/apartments/list')
+        .then((res) => {
+          const list = Array.isArray(res.data) ? res.data : [];
+          setApartmentNumbers(list.map((a) => a.apartmentNumber).filter(Boolean).sort());
+        })
+        .catch(() => setApartmentNumbers([]));
+    }, [isOpen, mode]);
+
     const handleChange = (e) => {
       const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -80,6 +110,9 @@ import {
                       <Input
                         type="text"
                         name="apartmentNumber"
+                        placeholder="VD: A0001"
+                        list="bill-apartment-options"
+                        autoComplete="off"
                         isRequired={true}
                         variant="auth"
                         fontSize="sm"
@@ -91,6 +124,11 @@ import {
                         onChange={handleChange}
                         isReadOnly={mode === 'view'}
                       />
+                      <datalist id="bill-apartment-options">
+                        {apartmentNumbers.map((number) => (
+                          <option key={number} value={number} />
+                        ))}
+                      </datalist>
                     </>
                   )}
   
@@ -119,8 +157,11 @@ import {
                       onChange={handleChange}
                       isReadOnly={mode === 'view'}
                     >
-                      <option value="FIXED_COST">FIXED_COST</option>
-                      <option value="SERVICE_COST">SERVICE_COST</option>
+                      {BILL_TYPES.map((type) => (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      ))}
                     </Select>
                     </>
                   )}
@@ -163,9 +204,11 @@ import {
                         color={textColor}
                         mb="8px"
                       >
-                        Due Date (YYYY-MM-DD)<Text color={brandStars}>*</Text>
+                        Due Date<Text color={brandStars}>*</Text>
                       </FormLabel>
                       <Input
+                        type={mode === 'view' ? 'text' : 'date'}
+                        min={mode === 'create' ? todayIso() : undefined}
                         name="dueDate"
                         isRequired={true}
                         variant="auth"
@@ -218,9 +261,12 @@ import {
                     color={textColor}
                     mb="8px"
                   >
-                    Amount (USD)<Text color={brandStars}>*</Text>
+                    Amount (VND)<Text color={brandStars}>*</Text>
                   </FormLabel>
                   <Input
+                    type={mode === 'view' ? 'text' : 'number'}
+                    min={1}
+                    placeholder="VD: 150000"
                     name="amount"
                     isRequired={true}
                     variant="auth"

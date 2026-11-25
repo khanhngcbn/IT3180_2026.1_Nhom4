@@ -540,8 +540,19 @@ import {
       [columnsConfig, textColor, selectedRows],
     );
   
+    // Lọc theo ô tìm kiếm: nội dung, số căn hộ, loại khoản thu hoặc trạng thái
+    const filteredData = React.useMemo(() => {
+      const keyword = searchTerm.trim().toLowerCase();
+      if (!keyword) return data;
+      return data.filter((bill) =>
+        [bill.description, bill.apartmentNumber, bill.billType, bill.status]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(keyword)),
+      );
+    }, [data, searchTerm]);
+
     const table = useReactTable({
-      data,
+      data: filteredData,
       columns,
       state: { sorting },
       onSortingChange: setSorting,
@@ -652,7 +663,7 @@ import {
           </Flex>
           <Box w={{ base: '100%', md: '300px' }}>
             <Input
-              placeholder="Search by bill name..."
+              placeholder="Search by description, apartment, type..."
               onChange={(e) => debouncedSetSearchTerm(e.target.value)}
               size="md"
               bg="whiteAlpha.800"

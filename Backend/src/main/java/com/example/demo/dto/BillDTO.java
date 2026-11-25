@@ -4,8 +4,9 @@ import com.example.demo.enums.BillType;
 import com.example.demo.validation.ApartmentExists;
 import com.example.demo.validation.ApartmentsExists;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -17,7 +18,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 public class BillDTO {
-    @NotNull(message = "Số căn hộ không được để trống")
+    @NotBlank(message = "Số căn hộ không được để trống")
     @ApartmentExists(message = "Số căn hộ không tồn tại trong hệ thống")
     private String apartmentNumber;
 
@@ -25,14 +26,14 @@ public class BillDTO {
     @Enumerated(EnumType.STRING)
     private BillType billType;
 
-    @NotNull(message = "Nội dung khoản thu không được để trống")
+    @NotBlank(message = "Nội dung khoản thu không được để trống")
     private String description;
 
-    @NotNull(message = "Số tền phải đóng không được để trống")
+    @NotNull(message = "Số tiền phải đóng không được để trống")
     @Min(value = 1, message = "Số tiền phải đóng phải lớn hơn 0")
     private Double amount;
 
     @NotNull(message = "Hạn đóng không được để trống")
-    @Future(message = "Ngày hạn đóng phải là ngày trong tương lai")
+    @FutureOrPresent(message = "Hạn đóng không được trước ngày hôm nay")
     private LocalDate dueDate;
 }
