@@ -30,3 +30,22 @@ Ngày 26/11/2026, trình duyệt Chromium, frontend `http://localhost:3000` (Rea
 | GD-24 | `/user/profile-user`, bấm "Change password" | Hộp thoại "Change your password", ô `oldPassword`, `newPassword`; nhãn Old Password, New Password | Đạt |
 
 Tổng: 20 đạt, 4 không đạt (GD-01, GD-10, GD-18, GD-23).
+
+## Lần 2 – hồi quy trên commit `5ec2491`
+
+Chạy lại cả 24 case ngay sau lần 2 của BC-01, cùng cách làm, frontend build lại từ mã mới. Chỉ ghi các giá trị khác lần 1; các case không nêu cho cùng giá trị như lần 1 và đều đạt.
+
+| Case | Giá trị quan sát được ở lần 2 | Kết quả |
+|---|---|---|
+| GD-01 | Ô Username: `text:Tên đăng nhập, VD: admin`; vẫn có nút "Sign in with Google" | Đạt |
+| GD-04 | Ô Username ở Sign Up vẫn `type="email"`, gợi ý `username`; nhãn trợ năng của ô Phone/Age vẫn gắn nhầm | Đạt (LOI-09 còn ở màn Sign Up) |
+| GD-09 | Nút trên trang: New Apartment, Filter, Select All, Set Status, phân trang | Đạt |
+| GD-10 | Bấm New Apartment: hộp thoại "Create Apartment" có apartmentNumber, roomNumber, type, floor, area, status. Nhập `C0101`, 2 phòng, `STANDARD`, tầng 12, 70 m², `RENT`, Save: "Creation Successful!"; API trả `C0101` = (2, 12, 70, STANDARD, RENT) | Đạt |
+| GD-13 | 52 căn hộ gợi ý (50 căn mẫu + `B0101` + `C0101`) | Đạt |
+| GD-15 | "Creation Successful!"; API: `A0002`, 15000, `2026-11-30`, `UNPAID` | Đạt |
+| GD-18 | Nhập -1000: ô tự đổi thành 0, "Success – Fee unit settings saved successfully", API `parkingFeePerHour: 0` | Không đạt (LOI-08 chưa sửa) |
+| GD-19 | Căn hộ có cư dân: A0012, A0023, A0024, A0031, **A0035** (cư dân tự đăng ký ở TH-01 nay đã hiện) | Đạt |
+| GD-22 | Chỉ A0012; ví dụ "phí thuê căn hộ A0012A0012" | Đạt (LOI-11 chưa sửa) |
+| GD-23 | `cudan01` mở `/admin/bill`: vẫn hiện menu quản trị và nút New Bill, bảng 0 dòng | Không đạt (LOI-10 chưa sửa) |
+
+Tổng lần 2: 22 đạt, 2 không đạt (GD-18, GD-23).

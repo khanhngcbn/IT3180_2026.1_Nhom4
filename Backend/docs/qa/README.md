@@ -1,6 +1,6 @@
 # Tài liệu kiểm thử BlueMoon – Sprint 1
 
-Bộ tài liệu kiểm thử cho bản ver1 (Sprint 1) của hệ thống quản lý chung cư BlueMoon: 12 User Story US01, US02, US03, US05, US06, US07, US08, US12, US15, US21, US22, US23. Mọi kết quả trong thư mục này lấy từ lần chạy kiểm thử ngày 26/11/2026 trên mã nguồn nhánh `main` (sau commit `4ffb52e`).
+Bộ tài liệu kiểm thử cho bản ver1 (Sprint 1) của hệ thống quản lý chung cư BlueMoon: 12 User Story US01, US02, US03, US05, US06, US07, US08, US12, US15, US21, US22, US23. Mọi kết quả trong thư mục này lấy từ hai lần chạy kiểm thử ngày 26/11/2026 trên nhánh `main`: lần 1 tại commit `4ffb52e`, lần 2 (hồi quy, sau bản sửa lỗi `c2dd81c`) tại commit `5ec2491`.
 
 ## Phân công
 
@@ -25,7 +25,7 @@ Việc chia lỗi cho hai người phát triển bám theo người phụ trách
 | Bộ dữ liệu kiểm thử | 5 | [du-lieu-kiem-thu.md](du-lieu-kiem-thu.md) (`DL-01`…`DL-05`) |
 | Báo cáo kiểm thử | 1 | [bao-cao-kiem-thu.md](bao-cao-kiem-thu.md) |
 | Báo cáo thực thi | 1 | [ket-qua-thuc-thi.md](ket-qua-thuc-thi.md) |
-| Báo cáo lỗi | 1 | [bao-cao-loi.md](bao-cao-loi.md) (13 lỗi `LOI-01`…`LOI-13`) |
+| Báo cáo lỗi | 1 | [bao-cao-loi.md](bao-cao-loi.md) (14 lỗi `LOI-01`…`LOI-14`) |
 | Bằng chứng | 3 | [bang-chung/](bang-chung/) (`BC-01`…`BC-03`) |
 | Checklist hồi quy | 1 | [checklist-hoi-quy.md](checklist-hoi-quy.md) |
 
@@ -33,11 +33,11 @@ Script kiểm thử API tự động: [tu-dong/kiem_thu_api.py](tu-dong/kiem_thu
 
 ## Kết quả nhanh (26/11/2026)
 
-| Nhóm | Số case | Đạt | Không đạt |
+| Nhóm | Số case | Đạt lần 1 | Đạt lần 2 |
 |---|:---:|:---:|:---:|
-| Chức năng (API) | 30 | 29 | 1 |
-| Tích hợp (API) | 8 | 4 | 4 |
-| Giao diện (trình duyệt) | 24 | 20 | 4 |
-| **Tổng** | **62** | **53** | **9** |
+| Chức năng (API) | 30 | 29 | 30 |
+| Tích hợp (API) | 8 | 4 | 8 |
+| Giao diện (trình duyệt) | 24 | 20 | 22 |
+| **Tổng** | **62** | **53** | **60** |
 
-Ngoài ra 9/9 test đơn vị của backend (`./mvnw test`) đều đạt. Chi tiết, đánh giá và đề xuất nằm trong [báo cáo kiểm thử](bao-cao-kiem-thu.md).
+Ngoài ra 9/9 test đơn vị của backend (`./mvnw test`) đều đạt ở cả hai lần. Lỗi còn mở sau lần 2: LOI-14 (Cao), LOI-08 (Trung bình), LOI-09 một phần, LOI-10, LOI-11, LOI-13 (Thấp). Chi tiết, đánh giá và đề xuất nằm trong [báo cáo kiểm thử](bao-cao-kiem-thu.md).

@@ -1,4 +1,7 @@
 # BC-01 - Kết quả chạy script kiểm thử API (nguyên văn đầu ra)
+# Gồm 2 lần chạy: LẦN 1 trên commit 4ffb52e, LẦN 2 (hồi quy) trên commit 5ec2491 (có bản sửa lỗi c2dd81c).
+
+# ===================== LẦN 1 =====================
 # Lệnh: python docs/qa/tu-dong/kiem_thu_api.py <mail.log> <ket-qua.json> http://localhost:9095
 # Backend: khởi động mới (database H2 trống, dữ liệu mẫu tự tạo); bắt đầu 2026-11-26T05:20:44, kết thúc 2026-11-26T05:21:06
 # Tổng 38 case, đạt 33, không đạt 5: CN-16, TH-01, TH-06, TH-07, TH-08
@@ -81,3 +84,87 @@ FAIL  TH-08  Kế toán (ADMIN thường) không khóa được tài khoản sup
       -> khóa hàng loạt 200 {"deactivatedCount": 0, "success": false, "failedIds": [1]}; khóa đơn lẻ 200 success; admin còn đăng nhập được: False
 
 Tổng 38 | đạt 33 | không đạt 5 ['CN-16', 'TH-01', 'TH-06', 'TH-07', 'TH-08']
+
+# ===================== LẦN 2 (hồi quy) =====================
+# Lệnh: python docs/qa/tu-dong/kiem_thu_api.py <mail.log> <ket-qua.json> http://localhost:9095
+# Mã nguồn: commit 5ec2491 (sau bản sửa lỗi c2dd81c); backend khởi động mới, database H2 trống
+# Bắt đầu 2026-11-26T05:37:31, kết thúc 2026-11-26T05:37:53; tổng 38 case, đạt 38, không đạt 0
+
+PASS  CN-01  Đăng ký tài khoản hợp lệ và xác minh bằng OTP
+      -> verify 200 {"message": "Xác thực thành công!"}; đăng nhập được
+PASS  CN-02  Đăng ký với dữ liệu sai định dạng bị từ chối
+      -> 400 lỗi ở các trường ['password', 'phone']
+PASS  CN-03  OTP sai bị từ chối, gửi lại OTP rồi nhập mã mới thì thành công
+      -> OTP sai 400 ({"message": "OTP không đúng. Vui lòng thử lại!"}), gửi lại 200, OTP mới 200
+PASS  CN-04  Đăng nhập đúng nhận JWT có vai trò tương ứng
+      -> vai trò trong JWT: admin=ROLE_ADMIN, cudan01=ROLE_USER
+PASS  CN-05  Sai mật khẩu hoặc tài khoản bị khóa thì không đăng nhập được
+      -> sai mật khẩu 401, tài khoản bị khóa 401
+PASS  CN-06  Đổi mật khẩu phải nhập đúng mật khẩu cũ
+      -> mật khẩu cũ sai 400 ({"error": "error_wrong_old_password"}), đúng 200; mật khẩu mới đăng nhập được
+PASS  CN-07  Quên mật khẩu: đặt lại bằng OTP gửi tới email đã đăng ký
+      -> gửi OTP 200, đặt lại 200 {"message": "Password changed successfully", "success": true...
+PASS  CN-08  Không dùng được OTP của email khác để đặt lại mật khẩu
+      -> 400 {"message": "Invalid OTP!", "success": false}; cudan02 vẫn dùng mật khẩu cũ: True
+PASS  CN-09  Nhập sai OTP 3 lần thì OTP bị hủy
+      -> 3 lần sai [400, 400, 400], OTP đúng sau đó 400
+PASS  CN-10  Ban quản lý đổi vai trò tài khoản
+      -> 200 updated; vai trò sau khi đổi: ROLE_ADMIN
+PASS  CN-11  Vô hiệu hóa và kích hoạt lại một tài khoản
+      -> khóa 200 (đăng nhập bị chặn: True), mở 200 (đăng nhập lại: True)
+PASS  CN-12  Vô hiệu hóa hàng loạt, bỏ qua tài khoản admin
+      -> 200 {"deactivatedCount": 2, "success": true, "failedIds": [1]}; 2 tài khoản bị khóa: True; admin vẫn đăng nhập: True
+PASS  CN-13  Cư dân và người chưa đăng nhập không vào được API quản trị
+      -> cư dân 403, không token 403, cư dân xem đơn giá 403
+PASS  CN-14  Thêm hồ sơ cư dân và gắn với căn hộ
+      -> 200 User added successfully; hồ sơ có căn hộ ['A0031']; căn hộ A0031 có 1 cư dân
+PASS  CN-15  Thêm cư dân với dữ liệu sai bị từ chối
+      -> căn hộ sai 400 {"apartmentNumbers": "Apartment không tồn tại trong hệ thống...; mật khẩu yếu 400
+PASS  CN-16  Thêm căn hộ mới với đủ thuộc tính
+      -> tạo 201; lưu được (tầng, diện tích, loại, trạng thái) = (11, 68.5, 'STANDARD', 'OCCUPIED'); thêm trùng số căn hộ 400 {"apartmentNumber": "Số căn hộ đã tồn tại"}
+PASS  CN-17  Cập nhật trạng thái nhiều căn hộ cùng lúc
+      -> cập nhật 200 -> OCCUPIED/OCCUPIED; trạng thái không hợp lệ 400
+PASS  CN-18  Lọc căn hộ theo tầng, trạng thái và loại
+      -> 200 kết quả ['A0001', 'A0002', 'A0003', 'A0004', 'A0005']
+PASS  CN-19  Xem danh sách cư dân trong một căn hộ
+      -> 200 cư dân của A0023: ['Nguyễn Thị C']
+PASS  CN-20  Lưu bảng đơn giá, gồm phí gửi xe theo tháng và theo giờ
+      -> 200; giá sau khi lưu (điện, nước, xe tháng, xe giờ) = (3800, 18000, 120000, 5000)
+PASS  CN-21  Đơn giá âm bị từ chối và không ghi đè giá cũ
+      -> 400 {"message": "Giá trị phí không thể là số âm!"}; giá giữ nguyên: True
+PASS  CN-22  Tạo khoản thu hợp lệ, trạng thái mặc định chưa thanh toán, tìm được theo căn hộ
+      -> 200 Bill added successfully; tìm theo căn hộ thấy 1 khoản, trạng thái UNPAID
+PASS  CN-23  Khoản thu sai dữ liệu báo lỗi theo từng trường
+      -> căn hộ không tồn tại 400 ['apartmentNumber']; số tiền 0 + hạn hôm qua 400 ['amount', 'dueDate']
+PASS  CN-24  Sửa rồi xóa một khoản thu
+      -> sửa 200 (số tiền mới 65000.0), xóa 204, xem lại 404
+PASS  CN-25  Tạo khoản thu điện, nước hàng loạt từ lượng tiêu thụ
+      -> 200; tạo [('ELECTRICITY', 'A0012', 456000.0), ('ELECTRICITY', 'A0023', 285000.0), ('WATER', 'A0012', 144000.0)]
+PASS  CN-26  Cư dân chỉ thấy khoản thu của căn hộ mình
+      -> 200 6 khoản, căn hộ ['A0012']
+PASS  CN-27  Cư dân không xem được khoản thu của căn hộ khác
+      -> mở khoản thu A0023: 403; xem chi tiết căn hộ A0023: 403
+PASS  CN-28  Xác nhận thanh toán tiền mặt, cư dân không có quyền này
+      -> cư dân 403; ban quản lý 200 -> PAID; xác nhận lần hai 400
+PASS  CN-29  Tạo loại đóng góp và đợt đóng góp có mục tiêu, thời gian
+      -> loại 200, đợt 200; đợt có trong danh sách: True, trạng thái ACTIVE
+PASS  CN-30  Đóng, mở lại và hủy đợt đóng góp
+      -> đóng/mở lại/hủy/mở lại sau khi hủy = [200, 200, 200, 400]
+PASS  TH-01  Cư dân tự đăng ký kèm căn hộ thì được gắn vào căn hộ đó
+      -> xác minh 200; A0035 có cư dân mới: True, trạng thái căn hộ RENT, cư dân thấy 3 khoản thu
+PASS  TH-02  Gắn cư dân đầu tiên vào căn hộ trống: căn hộ chuyển RENT và sinh 3 khoản phí
+      -> A0031 trạng thái RENT, 3 khoản phí: ['phí thuê căn hộ A0031A', 'phí dịch vụ căn hộA003', 'phí quản lý căn hộA003']
+PASS  TH-03  Đổi đơn giá rồi tạo khoản thu điện: số tiền dùng đơn giá mới
+      -> 200; 10 kWh × 4200 = 42000.0
+PASS  TH-04  Khoản thu mới của A0012 hiện cho cư dân A0012, không hiện cho cư dân khác
+      -> cudan01 thấy: True; cudan02 thấy: False
+PASS  TH-05  Ban quản lý xác nhận thanh toán, cư dân thấy trạng thái đã thanh toán
+      -> cư dân thấy khoản 13 trạng thái PAID
+PASS  TH-06  Vô hiệu hóa cư dân gỡ cư dân khỏi căn hộ, kích hoạt lại thì gắn lại
+      -> số cư dân A0031 sau khi khóa 0, sau khi mở lại 1
+PASS  TH-07  Tạo khoản đóng góp cho toàn bộ căn hộ: chỉ căn hộ có cư dân nhận khoản
+      -> 200; căn hộ nhận khoản ['A0012', 'A0023', 'A0024', 'A0031', 'A0035']; căn hộ đang có cư dân ['A0012', 'A0023', 'A0024', 'A0031', 'A0035']
+PASS  TH-08  Kế toán (ADMIN thường) không khóa được tài khoản super admin
+      -> khóa hàng loạt 200 {"deactivatedCount": 0, "success": false, "failedIds": [1]}; khóa đơn lẻ 403 Bạn không có quyền k...; admin còn đăng nhập được: True
+
+Tổng 38 | đạt 38 | không đạt 0 []

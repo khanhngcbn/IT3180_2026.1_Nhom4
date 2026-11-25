@@ -22,3 +22,17 @@ c.e.demo.config.DemoAccountInitializer   : Đã tạo tài khoản mẫu 'cudank
 
 ## 3. Đối chiếu số căn hộ bằng API (GET /api/admin/apartment-list ngay sau khi chạy BC-01)
 Căn hộ mẫu A00xx: 50 căn, từ A0001 đến A0050, tầng 1-10 -> log "150 căn hộ" ở mục 2 sai (LOI-12).
+
+## 4. LẦN 2 (hồi quy) trên commit 5ec2491
+### 4.1 ./mvnw -B test
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+### 4.2 Log khởi động backend dùng cho lần 2
+Đã khởi tạo 50 căn hộ!      <- LOI-12 đã sửa
+### 4.3 Kiểm tra thêm theo mục B1 của checklist hồi quy (ketoan = ADMIN thường, id 1 = admin)
+POST /api/admin/users/activate/1   bằng token ketoan -> 403
+POST /api/admin/users/delete/1     bằng token ketoan -> 403
+POST /api/admin/users/deactivate/2 (ketoan tự khóa mình) -> 403
+POST /api/admin/users/edit/1       bằng token ketoan, role=USER -> 200   <- LỖI MỚI LOI-14
+GET  /api/admin/users sau đó: admin role=USER (super admin bị hạ quyền)
+Khôi phục: ketoan gọi lại edit/1 với role=ADMIN -> 200; JWT của admin trở lại ROLE_ADMIN

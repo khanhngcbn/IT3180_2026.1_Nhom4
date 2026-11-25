@@ -3,7 +3,7 @@
 | Mục | Nội dung |
 |---|---|
 | Sản phẩm | BlueMoon – hệ thống quản lý cư dân, căn hộ và thu phí chung cư |
-| Phiên bản | ver1 (Sprint 1), nhánh `main` sau commit `4ffb52e` |
+| Phiên bản | ver1 (Sprint 1), nhánh `main`: lần 1 tại commit `4ffb52e`, lần 2 (hồi quy) tại commit `5ec2491` |
 | Người lập | Nguyễn Hoàng Giang (kiểm thử) |
 | Người duyệt | Nguyễn Đình Nam Khánh |
 | Ngày lập | 26/11/2026 |
@@ -73,8 +73,9 @@ Máy kiểm thử chưa cài Docker nên không chạy được PostgreSQL bằn
 | Lập kế hoạch, thiết kế case, chuẩn bị dữ liệu | Nguyễn Hoàng Giang | 26/11/2026 |
 | Chạy kiểm thử API (chức năng, tích hợp) | Nguyễn Hoàng Giang | 26/11/2026, 05:20–05:21 |
 | Chạy kiểm thử giao diện | Nguyễn Hoàng Giang | 26/11/2026 |
-| Sửa lỗi | Nguyễn Đình Nam Khánh, Đặng Thiệu Minh | Sau khi duyệt báo cáo lỗi |
-| Kiểm thử hồi quy theo checklist | Nguyễn Hoàng Giang | Sau khi có bản sửa lỗi |
+| Sửa lỗi (bản `c2dd81c`) | Nguyễn Đình Nam Khánh, Đặng Thiệu Minh | 26/11/2026 |
+| Kiểm thử hồi quy theo checklist (lần 2) | Nguyễn Hoàng Giang | 26/11/2026, API 05:37–05:38, sau đó giao diện |
+| Sửa các lỗi còn mở (LOI-14 trước tiên) và hồi quy lần 3 | Phát triển, sau đó kiểm thử | Sau khi duyệt báo cáo lần 2 |
 | Duyệt kết quả, quyết định nghiệm thu | Nguyễn Đình Nam Khánh | Sau hồi quy |
 
 ## 7. Rủi ro
