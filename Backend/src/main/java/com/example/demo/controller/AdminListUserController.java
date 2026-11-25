@@ -132,6 +132,8 @@ public class AdminListUserController {
     public ResponseEntity<String> editUser(@PathVariable Long id, @Valid @RequestBody ResidentDTO dto) {
         User user = userService.findById(id);
         if (user == null || user.getResidentId() == null) return ResponseEntity.status(404).body("User not found");
+        // Cùng quy tắc với khóa/mở/xóa: ADMIN thường không được sửa (kể cả đổi vai trò) tài khoản ADMIN khác hay "admin"
+        if (isProtected(user)) return ResponseEntity.status(403).body("Bạn không có quyền sửa tài khoản này");
         Resident resident = residentService.findById(user.getResidentId());
         apartmentService.updateResident(resident, dto);
         boolean updated = userService.updateUser(id, dto) && residentService.updateResident(user.getResidentId(), dto);
