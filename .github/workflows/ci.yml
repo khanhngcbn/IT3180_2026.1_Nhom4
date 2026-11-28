@@ -68,7 +68,7 @@ jobs:
 
       - name: Publish JUnit test summary
         if: always()
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@v6
         with:
           report_paths: Backend/target/surefire-reports/TEST-*.xml
           check_name: Backend JUnit Results
