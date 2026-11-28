@@ -7,13 +7,42 @@ on:
     branches: [main, develop]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect Changed Paths
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check changed paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'Backend/**'
+              - '.github/workflows/ci.yml'
+            frontend:
+              - 'Frontend/**'
+              - '.github/workflows/ci.yml'
+
   backend-ci:
     name: Backend Test & Coverage
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,6 +66,23 @@ jobs:
       - name: Run unit tests and generate JaCoCo report
         run: ./mvnw -B test
 
+      - name: Publish JUnit test summary
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: Backend/target/surefire-reports/TEST-*.xml
+          check_name: Backend JUnit Results
+          fail_on_failure: false
+
+      - name: Comment JaCoCo coverage on PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: madrapps/jacoco-report@v1.7.1
+        with:
+          paths: ${{ github.workspace }}/Backend/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 10
+          min-coverage-changed-files: 10
+
       - name: Upload Surefire test reports on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -53,8 +99,105 @@ jobs:
           path: Backend/target/site/jacoco
           if-no-files-found: ignore
 
+  backend-smoke-test:
+    name: Backend API Smoke Test (PostgreSQL)
+    needs: [changes, backend-ci]
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: chungcu_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: Backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: Backend/pom.xml
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Package Spring Boot JAR
+        run: |
+          chmod +x mvnw
+          ./mvnw -B package -DskipTests
+
+      - name: Start SMTP stub, boot backend, and run smoke_test.py
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/chungcu_db
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          MAIL_USERNAME: test@example.com
+          MAIL_PASSWORD: test
+          SPRING_MAIL_HOST: 127.0.0.1
+          SPRING_MAIL_PORT: "2525"
+          SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "false"
+          SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "false"
+          JWT_SECRET: dGVzdC1zZWNyZXQtdGVzdC1zZWNyZXQtdGVzdC1zZWNyZXQtMTIzNDU2
+          SEED_DEMO_ACCOUNTS: "true"
+        run: |
+          python3 scripts/smtp_stub.py /tmp/mail.log > /tmp/smtp.log 2>&1 &
+          SMTP_PID=$!
+
+          JAR_FILE=$(ls target/*SNAPSHOT.jar | grep -v original | head -n 1)
+          java -jar "$JAR_FILE" > /tmp/backend.log 2>&1 &
+          APP_PID=$!
+
+          cleanup() {
+            kill "$APP_PID" "$SMTP_PID" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+
+          echo "Waiting for backend on port 9090..."
+          for i in $(seq 1 60); do
+            if curl -s -o /dev/null http://localhost:9090/api/events/upcoming; then
+              echo "Backend is ready."
+              break
+            fi
+            if ! kill -0 "$APP_PID" 2>/dev/null; then
+              echo "Backend exited unexpectedly:"
+              cat /tmp/backend.log
+              exit 1
+            fi
+            sleep 2
+          done
+
+          python3 scripts/smoke_test.py /tmp/mail.log http://localhost:9090
+
+      - name: Print backend logs on failure
+        if: failure()
+        run: |
+          echo "=== Backend Log ==="
+          tail -n 100 /tmp/backend.log || true
+          echo "=== SMTP Stub Log ==="
+          cat /tmp/smtp.log || true
+
   frontend-ci:
-    name: Frontend Test & Build
+    name: Frontend Lint, Test & Build
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -76,6 +219,9 @@ jobs:
           else
             npm install --legacy-peer-deps
           fi
+
+      - name: Run ESLint check (errors only)
+        run: npx eslint src --ext .js,.jsx --quiet
 
       - name: Run unit tests
         env:
